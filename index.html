@@ -20,7 +20,9 @@ Zonai script is written using only 14 symbols:
 
 The game uses a handful of other
 symbols in the Zonai "language", such as those associated with the summonable
-champions, but they don't appear in larger passages.
+champions, but they don't appear in larger passages. These are explicitly
+Japanese kanji. For example, the Yunobo summon symbol is a variant of "炎",
+meaning "flames".
 
 <p>The text is usually written in vertical columns, but is sometimes written in
 rings. Less commonly, it is written in rows.
@@ -57,7 +59,8 @@ rings. Less commonly, it is written in rows.
 <p>The text has a visual similarity to CJK logographs, especially
 <a href="https://en.wikipedia.org/wiki/Oracle_bone_script">
 	oracle bone script
-</a>.
+</a>. As mentioned above, a handful of other symbols like those associated with
+the champions are very clearly derivatives of Japanese kanji.
 
 <table>
 	<tr><td class=zonai>W<td>笑
@@ -110,11 +113,17 @@ several factors point to this script rather being a cipher for Japanese:
 		are so short, it is hard to separate them.
 </section>
 
+<section id="try-a-cipher">
+	<h2>Try a cipher</h2>
+</section>
+
 <section id="text-samples">
 	<h2>Text Samples</h2>
 
 	<p>You can find the raw source of the text files for this page at
 	<a href="samples.txt">samples.txt</a>.
+
+	<p>You can contribute <a href="https://github.com/CurtisFenner/zonai/blob/main/samples.txt">to the GitHub repository here</a>.
 </section>
 
 <h2>Technical Details</h2>
@@ -164,6 +173,9 @@ You can <a href="Zonai-Regular.ttf" download>download Zonai-Regular.ttf here.</a
 			followed by a vowel.<br>
 			For example, the hiragana ほ represents the sound "ho".
 	</ul>
+
+	<p>I see no practical way to encode kanji using only 14 letters, so I
+		presume any cipher is purely phonetic.
 
 	<p>Japanese can be "spelled" using these 50 kana. Below is a sample of
 		Japanese text taken from the Nintendo website, and its conversion to
@@ -219,26 +231,27 @@ You can <a href="Zonai-Regular.ttf" download>download Zonai-Regular.ttf here.</a
 			(so を is "wo" not "o" and は is "ha" not "wa")
 		<li>Long vowels are transliterated as the two vowels<br>
 			(so おう is "ou" not "o" or "oh" or "ō")
-		<li>Irregular consonants are spelled as they are pronounced<br>
-			(so ち is "chi" rather than "ti" and つ is "tsu" rather than "tsu")
+		<li>Irregularly pronounced consonants are spelled regularly<br>
+			(so ち is "ti" rather than "chi", つ is "tu" rather than "tu",
+			しゅ is "syu" rather than "shu", ふ is "hu" rather than "fu")
 		<li>Small っ is written with a double consonant
 			(so 救った is written "sukutta")
 	</ul>
 
 	<blockquote id="romaji-sample">
-		<p>shiro ha chuu he to ukabiagari, sora kara nazo no iseki ga furisosogu.
-		hairaru ha totsujo toshite, tenpenchii ni mimawareta.
-		shujinkou rinku ha, hatenaki bouken ni futatabi mi wo toujiru.
+		<p>siro ha tyuu he to ukabiagari, sora kara nazo no iseki ga hurisosogu.
+		hairaru ha totujo tosite, tenpentii ni mimawareta.
+		syujinkou rinku ha, hatenaki bouken ni hutatabi mi wo toujiru.
 
-		<p>katute hairaru wo sukutta yuusha.
-			migite no chikara wo kushishite, hairaru no ihen ni tachimukau.
+		<p>katute hairaru wo sukutta yuusya.
+			migite no tikara wo kusisite, hairaru no ihen ni tatimukau.
 
-		<p>soumei de koukishin ousei na hairaru oukoku no himegimi.
-			hairaru wo soutenpenchii ni makikomareteshimau.
+		<p>soumei de koukisin ousei na hairaru oukoku no himegimi.
+			hairaru wo soutenpentii ni makikomaretesimau.
 
 		<p>josei bakari no gerudozoku nioite,
-			hyakunen ni ichido dake umareru otokotoshite sei wo ukeru.
-			hairaru wo osotta tenpenchii to nanika kankei ga aru you daga.
+			hyakunen ni itido dake umareru otokotosite sei wo ukeru.
+			hairaru wo osotta tenpentii to nanika kankei ga aru you daga.
 	</blockquote>
 
 	<p>However, many of these features do not appear to be used by Zonai text.
@@ -249,7 +262,7 @@ You can <a href="Zonai-Regular.ttf" download>download Zonai-Regular.ttf here.</a
 		<li>Similarly, I removed double vowels like "ii" and "uu", but not
 			"ou" or "ei".
 		<li>Irregular spellings are not used, because there aren't enough
-			letters to include a "c" for "chi"
+			letters to include a "c" for "chi" or "f" for "fu"
 		<li>Voicing is probably not indicated, because there aren't enough
 			letters to distinguish d and t, s and z and j, h and b and p,
 			k and g, etc.

@@ -160,7 +160,7 @@ function createTextRing(line) {
 	div.appendChild(center);
 	let i = 0;
 	for (const c of line) {
-		const cell = document.createElement("div");
+		const cell = elCipherLetter(c);
 		cell.style.display = "inline-block";
 		cell.style.position = "absolute";
 		cell.style.textAlign = "center";
@@ -199,7 +199,11 @@ function el(tag, content = [], attributes = {}) {
 	}
 
 	for (const [k, v] of Object.entries(attributes)) {
-		e.setAttribute(k, v);
+		if (typeof v === "function") {
+			e.addEventListener(k, v);
+		} else {
+			e.setAttribute(k, v);
+		}
 	}
 	for (const [p, v] of Object.entries(attributes.style || {})) {
 		e.style.setProperty(p, v);
@@ -427,7 +431,8 @@ function sectionBigramFrequency() {
 	}
 
 	const zonaiTh = (text, side) => {
-		return el("th", side === "row" ? text + "_" : "_" + text, {
+		const cell = elCipherLetter(text);
+		return el("th", side === "row" ? [cell, "_"] : ["_", cell], {
 			class: "zonai",
 			style: {
 				"font-size": "65%",
@@ -599,6 +604,63 @@ async function processRomajiSample() {
 	processedRomaji = processed + processedWikipedia;
 }
 
+function cipherSelectorBox(zonaiLetter) {
+	const urlState = new URL(window.location.href);
+	return el("label", [
+		el("span", zonaiLetter, {
+			class: "zonai",
+			style: {
+				display: "inline-block",
+				"text-align": "center",
+				width: "2em",
+			},
+		}),
+		el("input", [], {
+			maxlength: 1,
+			value: urlState.searchParams.get(zonaiLetter) || "",
+			input: (e) => {
+				const setting = e.target.value.trim();
+				for (const cell of cipherLetterList[zonaiLetter]) {
+					if (setting) {
+						cell.classList.remove("zonai");
+						cell.classList.add("romaji");
+						cell.textContent = setting;
+					} else {
+						cell.textContent = zonaiLetter;
+						cell.classList.remove("romaji");
+						cell.classList.add("zonai");
+					}
+				}
+
+				const newURL = new URL(window.location.href);
+				if (setting) {
+					newURL.searchParams.set(zonaiLetter, setting);
+				} else {
+					newURL.searchParams.delete(zonaiLetter);
+				}
+				window.history.replaceState({}, "", newURL.toString());
+			},
+			style: { padding: "0.7em", width: "1.5em", "text-align": "center" },
+		})
+	]);
+}
+
+function sectionTryACipher() {
+	const boxes = "NDSBLHMRJCWUYT".split("").map(cipherSelectorBox);
+
+	const table = el(
+		"table",
+		[
+			el("tr", boxes.slice(0, 7).map(x => el("td", x))),
+			el("tr", boxes.slice(7, 14).map(x => el("td", x))),
+		],
+	);
+
+	const section = document.getElementById("try-a-cipher");
+	section.appendChild(table);
+}
+
 await processRomajiSample();
 sectionLetterFrequency();
 sectionBigramFrequency();
+sectionTryACipher();

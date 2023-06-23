@@ -26,6 +26,12 @@ body {
 	text-align: center;
 }
 
+.romaji {
+	padding: 0.5em;
+	font-family: var(--font);
+	background: #EEE;
+}
+
 html {
 	background: linear-gradient(to bottom, #93C7F6, #E3F4EE, #FFD974, #F6CA36, #E2C10D, #D2B10A, #735128, #1F1008)
 }
@@ -135,4 +141,8 @@ hr {
 	border: none;
 	height: 1px;
 	background: rgba(8, 16, 32, 0.5);
+}
+
+input {
+	font-size: 1em;
 }
