@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.css">
+<link rel="stylesheet" href="css.css">
+<title>Zonai Script</title>
+<h1>Zonai Script<br><small>from Nintendo's Tears of the Kingdom</small></h1>
+
+This website is a collection of samples and notes on the use of the Zonai
+writing system in Tears of the Kingdom.
+
+<h2>Structure</h2>
+Zonai script is written using only 14 symbols:
+
+<p class=zonai style="font-size: 36px; text-align: center;">
+	B C D H J L M N R S T U W Y
+</p>
+
+<span class=icon-rotate-cw></span>
+<span class=icon-rotate-ccw></span>
+
+The game uses a handful of other
+symbols in the Zonai "language", such as those associated with the summonable
+champions, but they don't appear in larger passages.
+
+<p>The text is usually written in vertical columns, but is sometimes written in
+rings. Less commonly, it is written in rows.
+
+<p>I suspect that circular text is usually read counter-clockwise. For example,
+	consider the circular writing on the back of the Zonai stake:
+
+<div class="display-zonai" data-display-zonai-title="devices/stake/back"></div>
+
+<p>If you read it clockwise, you get <span class=zonai>HSLJ</span>.
+<p>If you read it counter-clockwise, you get <span class=zonai>HJLS</span>.
+
+<p>Now consider some of the other zonai devices:
+
+<div style="display: flex; flex-direction: row;">
+	<div class="display-zonai" data-display-zonai-title="devices/sled"></div>
+	<div class="display-zonai" data-display-zonai-title="devices/flame"></div>
+	<div class="display-zonai" data-display-zonai-title="devices/hydrant"></div>
+	<div class="display-zonai" data-display-zonai-title="devices/tank"></div>
+</div>
+
+<p>These all have the same string <span class=zonai>HJL(S)</span>, which matches
+	the <strong>counter-clockwise</strong> reading.
+
+<ul>
+	<li>The stake has a small bit of circular writing on it.
+	<li>Read clockwise, it would be <span class=zonai>HSLJ</span>.
+	<li>Read counter-clockwise, it would be <span class=zonai>HJLS</span>.
+	<li>Both the flame emitter and the sled have the same string
+		<span class=zonai>HJL(SY)</span>, which is why I suspect the
+		counter-clockwise reading.
+</ul>
+
+<p>The text has a visual similarity to CJK logographs, especially
+<a href="https://en.wikipedia.org/wiki/Oracle_bone_script">
+	oracle bone script
+</a>.
+
+<table>
+	<tr><td class=zonai>W<td>笑
+	<tr><td class=zonai>M<td>京
+</table>
+
+<p>Previous installments in the Zelda franchise have created Hylian scripts
+which were simple ciphers for English or Japanese text. Recent games (including
+<i>Breath of the Wild</i>'s Sheikah script) have been English ciphers, but
+several factors point to this script rather being a cipher for Japanese:
+
+<ul>
+	<li>The script has a basic resemblance to old Chinese/Japanese writing
+	<li>Like classical Japanese, the script is written in columns
+	<li>14 symbols is far too few to write intelligible English text
+	<li>Japanese is normally written in a syllabary of 45 symbols formed from
+		5 vowels and 9 consonants (plus several voicing marks)
+		<ul>
+			<li>Using voicing marks is a convention in modern Japanese; texts
+				older than around 1850 wouldn't have used them regularly, making
+				it appropriate that an "ancient" language based on Japanese
+				wouldn't use them.
+		</ul>
+</ul>
+
+<section id="letter-frequency">
+	<h2>Letter Frequency</h2>
+	Some of the "letters" appear much more than others:
+</section>
+
+<section id="bigram-frequency">
+	<h2>Bigram Frequency</h2>
+	<p>Some combinations of letters appear much more frequently.
+	<p>There is not a clear resemblance to romaji's bigram frequencies, but
+		because there is so little sample data, and it likely contains many
+		transcription errors or oddities, it is hard to compare.
+	<p>A less plausible explanation may be that the text is not an alphabet,
+		but an <a href="https://en.wikipedia.org/wiki/Abjad">abjad</a>; there
+		are also 14 consonants in Japanese: 
+		(K, G; S, Z; T, D; H, B, P; R, M, N, Y, W).<br>
+		However, this would be nearly unreadable, so I don't suspect this is
+		the case. Many grammatical functions are indicated solely using vowels,
+		which makes this a terribly unclear way to write Japanese.<br>
+	<p>I <em>do</em> think that some of the text in the game is nonsense; in
+		particular, the stone tablets in the Ring Ruins should be a trove of
+		Zonai text, since each tablet contains 54 letters.
+	<p>However, the letter distribution in them is as-uniform-as-possible, which
+		makes me think they are random rather than actual text. It's possible
+		that other garbage samples exist in the game, but since many of them
+		are so short, it is hard to separate them.
+</section>
+
+<section id="text-samples">
+	<h2>Text Samples</h2>
+
+	<p>You can find the raw source of the text files for this page at
+	<a href="samples.txt">samples.txt</a>.
+</section>
+
+<h2>Technical Details</h2>
+I used the free version of
+<a href="https://www.calligraphr.com/en/">Calligraphr</a> to create a custom TTF
+font to encode the 14 symbols.
+
+You can <a href="Zonai-Regular.ttf" download>download Zonai-Regular.ttf here.</a>
+
+<table>
+	<tr><th>B<td class=zonai>B
+	<tr><th>C<td class=zonai>C
+	<tr><th>D<td class=zonai>D
+	<tr><th>H<td class=zonai>H
+	<tr><th>J<td class=zonai>J
+	<tr><th>L<td class=zonai>L
+	<tr><th>M<td class=zonai>M
+	<tr><th>N<td class=zonai>N
+	<tr><th>R<td class=zonai>R
+	<tr><th>S<td class=zonai>S
+	<tr><th>T<td class=zonai>T
+	<tr><th>U<td class=zonai>U
+	<tr><th>W<td class=zonai>W
+	<tr><th>Y<td class=zonai>Y
+</table>
+
+<section>
+	<h2>Japanese sample text</h2>
+	<p>Japanese is normally written using two kinds of characters:
+	<ul>
+		<li>kanji: There are around two thousand regularly used kanji.<br>
+			Their pronunciation changes completely depending on context.<br>
+			Each one generally has a "meaning" that is used in one or more
+			words.<br>
+			For example, the kanji 食 means "food" or "eat":
+			<ul>
+				<li><ruby>食<rt>ta</rt></ruby><ruby>べ<rt>be</rt></ruby><ruby>る<rt>ru</rt></ruby>:
+					to eat
+				<li><ruby>食<rt>shoku</rt></ruby><ruby>堂<rt>dou</rt></ruby>:
+					cafeteria
+			</ul>
+		<li>kana: There are 50 kana symbols, in two forms (hiragana and
+			katakana).<br>
+			Individual kana are purely phonetic and do not mean anything; they
+			have essentially fixed pronunciations.<br>
+			Each kana represents a "syllable" combinining an initial consonant
+			followed by a vowel.<br>
+			For example, the hiragana ほ represents the sound "ho".
+	</ul>
+
+	<p>Japanese can be "spelled" using these 50 kana. Below is a sample of
+		Japanese text taken from the Nintendo website, and its conversion to
+		kana.
+
+	<p><a href="https://www.nintendo.co.jp/zelda/totk/character/index.html">https://www.nintendo.co.jp/zelda/totk/character/index.html</a>
+	<blockquote>
+		<p>城は宙へと浮かび上がり、空から謎の遺跡が降り注ぐ。
+		ハイラルは突如として、”天変地異”に見舞われた。
+		主人公リンクは、果てなき冒険に再び身を投じる。
+
+		<p>かつてハイラルを救った勇者。
+		右手の力を駆使して、ハイラルの異変に立ち向かう。
+
+		<p>聡明で好奇心旺盛なハイラル王国の姫君。
+		ハイラルを襲う天変地異に巻き込まれてしまう。
+
+		<p>女性ばかりのゲルド族において、
+		百年に一度だけ生まれる男として生を受ける。
+		ハイラルを襲った天変地異と何か関係があるようだが・・・
+	</blockquote>
+
+	<blockquote id="kana-sample">
+		<p>しろはちゅうへとうかびあがり、そらからなぞのいせきがふりそそぐ。
+		ハイラルはとつじょとして、”てんぺんちい”にみまわれた。
+		しゅじんこうリンクは、はてなきぼうけんにふたたびみをとうじる。
+
+		<p>かつてハイラルをすくったゆうしゃ。
+		みぎてのちからをくしして、ハイラルのいへんにたちむかう。
+
+		<p>そうめいでこうきしんおうせいなハイラルおうこくのひめぎみ。
+		ハイラルをおそうてんぺんちいにまきこまれてしまう。
+
+		<p>じょせいばかりのゲルドぞくにおいて、
+		ひゃくねんにいちどだけうまれるおとことしてせいをうける。
+		ハイラルをおそったてんぺんちいとなにかかんけいがあるようだが・・・
+	</blockquote>
+
+	<p>Because there are only 14 zonai symbols, they could not possibly encode
+		the 50 kana, like what was done in the Ocarina of Time script.
+
+	<p>Instead, I suspect the Zonai script is more likely based on a proper
+		alphabet, such as the transliteration of Japanese into the Latin
+		alphabet.
+
+	<p>There are several ways to transliterate Japanese text into the Latin
+		alphabet (referred to as "romaji", for Roman-characters). Here are the
+		choices I made for the below transliteration:
+
+	<ul>
+		<li>Grammatical particles are transliterated as they are written, not as
+			they are pronounced<br>
+			(so を is "wo" not "o" and は is "ha" not "wa")
+		<li>Long vowels are transliterated as the two vowels<br>
+			(so おう is "ou" not "o" or "oh" or "ō")
+		<li>Irregular consonants are spelled as they are pronounced<br>
+			(so ち is "chi" rather than "ti" and つ is "tsu" rather than "tsu")
+		<li>Small っ is written with a double consonant
+			(so 救った is written "sukutta")
+	</ul>
+
+	<blockquote id="romaji-sample">
+		<p>shiro ha chuu he to ukabiagari, sora kara nazo no iseki ga furisosogu.
+		hairaru ha totsujo toshite, tenpenchii ni mimawareta.
+		shujinkou rinku ha, hatenaki bouken ni futatabi mi wo toujiru.
+
+		<p>katute hairaru wo sukutta yuusha.
+			migite no chikara wo kushishite, hairaru no ihen ni tachimukau.
+
+		<p>soumei de koukishin ousei na hairaru oukoku no himegimi.
+			hairaru wo soutenpenchii ni makikomareteshimau.
+
+		<p>josei bakari no gerudozoku nioite,
+			hyakunen ni ichido dake umareru otokotoshite sei wo ukeru.
+			hairaru wo osotta tenpenchii to nanika kankei ga aru you daga.
+	</blockquote>
+
+	<p>However, many of these features do not appear to be used by Zonai text.
+	<ul>
+		<li>Double letters are extremely rare, so it's unlikely 救った would be
+			spelled as "sukutta", because the small っ is very common in
+			Japanese.
+		<li>Similarly, I removed double vowels like "ii" and "uu", but not
+			"ou" or "ei".
+		<li>Irregular spellings are not used, because there aren't enough
+			letters to include a "c" for "chi"
+		<li>Voicing is probably not indicated, because there aren't enough
+			letters to distinguish d and t, s and z and j, h and b and p,
+			k and g, etc.
+			<ul>
+				<li>This is the case with the "Old Hylian" script from the
+					Ocarina of Time.
+			</ul>
+		<li>I chose to transliterate "small kana" the same as big kana, so
+			a string like キャット ("kyatto") would become "kiyatuto"
+			<ul>
+				<li>This is also the case with "Old Hylian" from Ocarina of
+					Time.
+			</ul>
+	</ul>
+
+
+	<p>Below is the result of these operations. This text is what is used to
+		generate the unigram and bigram tables for Japanese romaji above.
+
+	<blockquote id="romaji-sample-processed">
+	</blockquote>
+</section>
+
+<script type="module" src="main.mjs"></script>

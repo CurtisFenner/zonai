@@ -1,0 +1,494 @@
+# title/poem-1
+HRD
+YJU
+NHM
+MDB
+RUR
+YBL
+  U
+
+# title/poem-2
+NTH
+UHN
+LJD
+RBR
+JYU
+DMJ
+U L
+
+# temple-of-time/door/bottom-left
+M L
+S N H D
+L S D N
+N D L B
+S N S N
+L D B M
+H B L H
+M L   S
+B H   D
+L     N
+
+# temple-of-time/door/bottom-right
+      H
+S L H D
+S N S N
+L H H B
+H B S N
+  N L M
+  D S H
+  B B S
+  L M D
+  H   N
+
+# temple-of-time/door/center-top
+H    N
+N    B
+D    L
+B    M
+
+# temple-of-time/door/center-bottom
+D   L
+B   M
+H   B
+N   S
+
+# temple-of-time/door/top-left
+D N N N S D
+N B M L B N
+B N D S N S
+  M S   M
+// the third "N" in the top row is flipped 180 degrees
+
+# temple-of-time/door/top-right
+H D N N S N
+S L B M L B
+D B N L S N
+    M   D M
+
+# temple-of-time/chamber/poem-1
+HLND
+DLDL
+LNSS
+DBDN
+NMLD
+DLDL
+ DN
+ HM
+ ND
+ M
+ D
+ M
+
+# temple-of-time/chamber/poem-2
+DLD   MLH
+HBS   HND
+SND   NBN
+BDH   BSB
+H N   H D
+N B   D N
+  H   N
+  D   H
+  L   D
+  D
+
+# temple-of-time/chamber/poem-3
+DMNH
+SNDN
+NSHD
+MHBH
+BDNL
+HMDN
+ NH
+ BN
+ HB
+ D
+
+# temple-of-time/pillar
+H
+N
+D
+B
+L
+S
+M
+
+# temple-of-time/base-pillar-1
+H
+N
+D
+# temple-of-time/base-pillar-2
+B
+S
+L
+M
+
+# sky-islands/spinner
+H
+N
+D
+B
+S
+
+# sky-islands/launcher
+H B
+N S
+D L
+B H
+S N
+L D
+M B
+
+# sky-islands/float-spike
+R
+S
+N
+U
+
+# shrines/entrance-pillar
+J
+N
+D
+B
+S
+L
+M
+
+# shrines/voice/you-who-offers
+rightward
+TCJWTRCJR
+
+# shrines/voice/reward/visitor-to
+rightward
+NUYBCMYSY
+
+# shrines/voice/reward/you-have-done-well
+rightward
+SMTNBLNUT
+
+# shrines/portal
+counterclockwise
+WUMLSBJNHYTRDCWUMLSBJNHC
+
+# shrines/dragon
+D
+B
+S
+L
+
+# shrines/stone
+rightward
+...RBJHSMRBJHCNDNLUW...
+
+# shrines/shrine-top
+J
+B
+T
+
+# shrines/gate
+H
+J
+L
+S
+W
+Y
+
+# shrines/pounding-pillar
+rightward
+...MLSBN...
+
+# refinery/side
+N
+D
+B
+S
+S
+L
+
+# refinery/top-front
+S
+N
+C
+U
+M
+L
+
+# refinery/top-side
+J
+D
+B
+T
+U
+R
+
+# devices/spring
+L
+S
+W
+
+# devices/sled
+H
+J
+L
+S
+Y
+
+# devices/stake/back
+counterclockwise
+HJLS
+
+# devices/flame
+H
+J
+L
+
+# devices/floating-block/1
+    B
+R S S
+N W J
+C C
+S L
+
+# devices/floating-block/2
+  L
+R S
+T C R
+Y W T
+L M Y
+D W
+
+# devices/floating-block/3
+S B R S B
+W J N W J
+C R C C 
+L N   L
+  C
+
+# devices/floating-block/4
+L   R
+D   T
+W L Y
+M S
+  C
+
+# devices/rocket
+H
+S
+Y
+U
+
+# devices/hydrant
+H
+J
+L
+
+# devices/rail
+J W
+R B
+M J
+B R
+
+# devices/tank
+H
+J
+L
+
+# devices/turret
+L
+S
+
+# device-dispenser/globe
+D
+R
+T
+
+# device-dispenser/chute/1
+D
+R
+H
+C
+D
+U
+L
+// there are more but I don't have good reference photos
+
+# mines/pillar-1
+N
+D
+B
+S
+
+# mines/pillar-2
+H
+N
+D
+B
+
+# mines/pillar-3
+D
+B
+S
+
+B
+S
+L
+M
+
+# fire-temple/torch-1
+C
+R
+M
+
+# fire-temple/dragon
+H
+N
+D
+B
+S
+L
+M
+
+# fire-temple/torch-2
+L
+S
+
+# fire-temple/boss-1
+D
+B
+S
+L
+M
+
+
+# fire-temple/boss-2
+N
+D
+B
+S
+L
+
+# fire-temple/gong-1-left
+M
+B
+J
+R
+
+C
+R
+M
+
+# fire-temple/gong-1-right
+W
+B
+J
+R
+
+C
+R
+M
+
+# fire-temple/bridge
+B
+J
+R
+
+# resurrection/gear-1/center
+W
+R
+U
+
+# resurrection/gear-1/inner-ring
+counterclockwise
+NHYTRDCYTRDCWUMLSBJ
+
+# resurrection/gear-1/middle-ring
+// written in pairs verticaly
+// around the outer edge
+// Read counterclockwise from the top
+L T B M S N
+M Y J U W H
+
+# resurrection/doorway-1
+ D
+ B
+ S
+ L
+S
+L
+MH
+ N
+
+# resurrection/doorway-2
+// this one is cut off, I need to check it
+S
+
+
+L
+M
+ N
+ D
+
+# resurrection/jump
+N
+D
+B
+S
+L
+M
+
+# resurrection/awakening
+counterclockwise
+DNTYHNMUCWDHDNTYHNMUCWDH
+
+# prologue/wall
+H
+J
+N
+S
+// there might be more above or below but it's hard to see
+
+# prologue/torch-1
+H
+S
+N
+S
+
+# prologue/torch-2
+H
+J
+N
+S
+
+# prologue/fallen-pillar
+L B H
+N S D
+H M N
+B S B
+N L N
+D S M
+B   H
+    S
+
+# prologue/zonai-statue
+T
+J
+B
+S
+L
+
+# prologue/stair-engraving
+H
+J
+N
+S
+W
+Y
+
+# prologue/seal-pillar
+C   W
+    U
+    W
+    S
+R   R
+D   D
+W   C
+// The left side is broken

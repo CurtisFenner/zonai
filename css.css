@@ -1,0 +1,138 @@
+body {
+	padding: 0.25in;
+	margin: auto;
+	margin-top: 0;
+	margin-bottom: 0;
+	background-color: white;
+	--font: sans-serif;
+	font-family: var(--font);
+	font-size: 18px;
+	max-width: 11.5in;
+	color: #11242E;
+	box-shadow: 1px 10px 20px 5px rgba(0, 0, 0, 0.0525);
+
+	min-height: 100vh;
+}
+
+@font-face {
+	font-family: zonai;
+	src: url(Zonai-Regular.ttf);
+}
+
+.zonai,
+.zonai-th th,
+.zonai-ngram .ngram {
+	font-family: zonai;
+	text-align: center;
+}
+
+html {
+	background: linear-gradient(to bottom, #93C7F6, #E3F4EE, #FFD974, #F6CA36, #E2C10D, #D2B10A, #735128, #1F1008)
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+	font-variant: small-caps;
+}
+
+small {
+	font-size: 50%;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table {
+	--border-color: rgba(0, 0, 0, 0.25);
+}
+
+table {
+	border-top: 1px solid var(--border-color);
+	border-left: 1px solid var(--border-color);
+}
+
+td,
+th {
+	border-right: 1px solid var(--border-color);
+	border-bottoM: 1px solid var(--border-color);
+	padding: 0.25em;
+}
+
+.square-cell-1-65 {
+	table-layout: fixed;
+}
+
+.square-cell-1-5 td,
+.square-cell-1-5 th {
+	width: 1.5rem;
+	height: 1.5rem;
+	overflow: hidden;
+	text-overflow: clip;
+}
+
+td.zonai {
+	text-align: center;
+}
+
+.sample-box {
+	box-shadow: 0 0 3px 0px rgba(0, 0, 0, 0.25);
+	margin: 0.5em;
+	padding: 0.5em;
+	display: inline-block;
+	text-align: center;
+}
+
+.sample-box .label {
+	display: block;
+	font-variant: small-caps;
+	font-size: 10px;
+}
+
+.sample-box .table-wrapper {
+	display: inline-block;
+}
+
+.center {
+	left: 50%;
+	top: 50%;
+}
+
+.radial {
+	transform: translate(-50%, -50%) rotate(var(--radial-angle)) translateY(calc(-1 * var(--radial-radius)));
+}
+
+blockquote {
+	background: #ABC;
+	color: #222;
+	padding: 1em 1.5em;
+}
+
+.bigrams.flex-table {
+	height: 200vh;
+}
+
+.center-label {
+	display: block;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.bigrams.flex-table .flex-cell {
+	box-shadow: inset 0 0 1px 1px black;
+}
+
+.heatmap td {
+	background-color: color-mix(in lab, #22AACC calc(100% * var(--table-shade)), white);
+}
+
+hr {
+	border: none;
+	height: 1px;
+	background: rgba(8, 16, 32, 0.5);
+}
