@@ -16,6 +16,91 @@ JYU
 DMJ
 U L
 
+# temple-of-time/flying-spike
+SY
+HU
+CB
+DJ
+UW
+LC
+
+# temple-of-time/rafters
+N H
+D N
+B D
+S B
+L S
+M L
+
+# temple-of-time/exit-dragon/left
+  D L W
+ H D D
+ S R R
+  L M
+  C D
+  Y
+   N
+   M
+   T
+   C
+   S
+   T
+   M
+   S
+   L
+   W
+   C
+   D
+   N
+   H
+   J
+   S
+   H
+   J
+   T
+   Y
+   R
+   D
+   C
+
+# temple-of-time/exit-dragon/right
+W ? D
+ ? D H
+ R R S
+  M ?
+  D ?
+    ?
+   N
+   S
+   R
+   C
+   M
+   R
+   S
+   M
+   L
+   D
+   C
+   W
+   N
+   J
+   H
+   M
+   J
+   H
+   R
+   Y
+   T
+   W
+   C
+
+# temple-of-time/outdoor-circles
+clockwise
+DBDLSDDSDBDL
+BSBMLBBLBSBM
+// two rings
+
+
 # temple-of-time/door/bottom-left
 M L
 S N H D
@@ -153,17 +238,17 @@ S
 L
 M
 
-# shrines/voice/you-who-offers
-rightward
-TCJWTRCJR
+//# shrines/voice/you-who-offers
+//rightward
+//TCJWTRCJR
 
-# shrines/voice/reward/visitor-to
-rightward
-NUYBCMYSY
+//# shrines/voice/reward/visitor-to
+//rightward
+//NUYBCMYSY
 
-# shrines/voice/reward/you-have-done-well
-rightward
-SMTNBLNUT
+//# shrines/voice/reward/you-have-done-well
+//rightward
+//SMTNBLNUT
 
 # shrines/portal
 counterclockwise
@@ -177,7 +262,8 @@ L
 
 # shrines/stone
 rightward
-...RBJHSMRBJHCNDNLUW...
+ring
+BJHCNDNLUWSMRBJHSMR
 
 # shrines/shrine-top
 J
@@ -194,7 +280,19 @@ Y
 
 # shrines/pounding-pillar
 rightward
+ring
+MLSBNTMLSBNT
 ...MLSBN...
+
+# shrines/ball
+rightward
+ring
+TYHYHNJBSLMUWCDR
+
+# shrines/ceiling-hint
+H
+J
+L
 
 # refinery/side
 N
@@ -220,6 +318,47 @@ T
 U
 R
 
+# devices/mirror
+R
+M
+N
+
+# devices/shrine-sunlight
+B
+U
+W
+
+# devices/fan
+L
+S
+Y
+U
+
+# devices/electricity-producer
+B
+S
+L
+M
+
+# devices/cannon
+S
+J
+L
+S
+
+# devices/balloon
+M
+U
+W
+
+# devices/balloon-basket
+J
+B
+S
+L
+M
+?
+
 # devices/spring
 L
 S
@@ -231,10 +370,61 @@ J
 L
 S
 Y
+U
+
+# devices/control-stick
+H
+J
+L
+S
 
 # devices/stake/back
 counterclockwise
 HJLS
+
+# devices/stake/side-1
+N
+U
+J
+B
+C
+U
+
+# devices/stake/side-3
+D
+C
+U
+J
+Y
+H
+
+# devices/stake/side-2
+T
+S
+Y
+H
+D
+C
+
+# devices/stake/side-4
+Y
+H
+D
+C
+J
+N
+
+# memories/ganon/round-stone
+ring
+...JHDR?MUNDR...
+
+# memories/ganon/pillar
+D
+R
+N
+M
+U
+N
 
 # devices/flame
 H
@@ -270,6 +460,14 @@ W L Y
 M S
   C
 
+# devices/floating-block/h-1
+flow: right-to-left
+LSCW LSCW YC
+
+# devices/floating-block/h-2
+flow: left-to-right
+BT STMN BT STMN
+
 # devices/rocket
 H
 S
@@ -302,14 +500,13 @@ R
 T
 
 # device-dispenser/chute/1
-D
-R
-H
-C
-D
-U
-L
-// there are more but I don't have good reference photos
+W D M D W B
+C R N R C D
+U H R H H R
+B C Y C C Y
+J D W D D W
+W U M U U M
+? ? ? L L ?
 
 # mines/pillar-1
 N

@@ -14,7 +14,7 @@ for (const line of sampleText.split("\n")) {
 		});
 	} else if (line.startsWith("//")) {
 		samples[samples.length - 1].comments.push(line.substring(2));
-	} else if (line.match(/^[a-z]+$/)) {
+	} else if (line.match(/^[a-z: -]+$/)) {
 		samples[samples.length - 1].directives.push(line);
 	} else if (line.trim() !== "") {
 		samples[samples.length - 1].content.push(line);
@@ -84,7 +84,10 @@ function renderZonaiSample(sample) {
 	box.appendChild(label);
 
 	if (sample.directives.includes("counterclockwise")) {
-		const ring = createTextRing(sample.content.join(""));
+		const ring = createTextRing(sample.content);
+		tableWrapper.appendChild(ring);
+	} else if (sample.directives.includes("clockwise")) {
+		const ring = createTextRing(sample.content.map(x => x.split("").reverse().join("")));
 		tableWrapper.appendChild(ring);
 	} else {
 		const table = createTextGridTable(sample.content);
@@ -142,14 +145,18 @@ function readColumnsRightToLeft(lines) {
 }
 
 /**
- * @param line {string | string[]}
+ * @param line {string[]}
  */
-function createTextRing(line) {
+function createTextRing(lines) {
+	if (!Array.isArray(lines)) {
+		throw new Error("expected string[]");
+	}
+
 	const characterSpaceEm = 2;
-	const circumferenceEm = line.length * characterSpaceEm;
+	const circumferenceEm = lines[0].length * characterSpaceEm;
 	const radiusEm = circumferenceEm / (2 * Math.PI);
 	const div = document.createElement("div");
-	const canvasSize = 2 * radiusEm + 2.5 * characterSpaceEm;
+	const canvasSize = 2 * radiusEm + (1 + 2 * lines.length) * characterSpaceEm;
 	div.style.width = canvasSize.toFixed(2) + "em";
 	div.style.height = canvasSize.toFixed(2) + "em";
 	div.style.position = "relative";
@@ -158,19 +165,22 @@ function createTextRing(line) {
 	center.style.position = "absolute";
 	center.style.textAlign = "center";
 	div.appendChild(center);
-	let i = 0;
-	for (const c of line) {
-		const cell = elCipherLetter(c);
-		cell.style.display = "inline-block";
-		cell.style.position = "absolute";
-		cell.style.textAlign = "center";
-		cell.textContent = c;
-		const angleDeg = (i / line.length) * 360;
-		cell.className = "radial";
-		cell.style.setProperty("--radial-angle", -angleDeg.toFixed(2) + "deg");
-		cell.style.setProperty("--radial-radius", (radiusEm + 0.5 * characterSpaceEm).toFixed(2) + "em");
-		i++;
-		center.appendChild(cell);
+	for (let row = 0; row < lines.length; row++) {
+		const line = lines[row];
+		let i = 0;
+		for (const c of line) {
+			const cell = elCipherLetter(c);
+			cell.style.display = "inline-block";
+			cell.style.position = "absolute";
+			cell.style.textAlign = "center";
+			cell.textContent = c;
+			const angleDeg = (i / line.length) * 360;
+			cell.className = "radial";
+			cell.style.setProperty("--radial-angle", -angleDeg.toFixed(2) + "deg");
+			cell.style.setProperty("--radial-radius", (radiusEm + (lines.length - row) * characterSpaceEm).toFixed(2) + "em");
+			i++;
+			center.appendChild(cell);
+		}
 	}
 	return div;
 }
@@ -214,7 +224,7 @@ function el(tag, content = [], attributes = {}) {
 /**
  * @param ngrams {{entries: {ngram: string, count: number}[], total: number}}
  */
-function renderUnigramTable(ngrams, style) {
+function renderUnigramTable(ngrams, style, heading = x => x) {
 	const most = ngrams.entries[0].count;
 	return el(
 		"table",
@@ -222,7 +232,7 @@ function renderUnigramTable(ngrams, style) {
 			el("tr", [el("th", "Letter"), el("th", "Relative frequency", { colspan: 2 })]),
 			ngrams.entries.map(({ ngram, count }) =>
 				el("tr", [
-					el("th", ngram, { class: "ngram" }),
+					el("th", heading(ngram), { class: "ngram" }),
 					el("td", count.toFixed(0)),
 					el("td",
 						el(
@@ -372,7 +382,7 @@ function sectionLetterFrequency() {
 		"min-width": "10em",
 		"flex-grow": "1",
 		"flex-basis": "10em",
-	});
+	}, elCipherLetter);
 	zonaiTable.classList.add("zonai-ngram");
 
 	const japaneseTable = renderUnigramTable(japaneseUnigrams, {
@@ -432,7 +442,7 @@ function sectionBigramFrequency() {
 
 	const zonaiTh = (text, side) => {
 		const cell = elCipherLetter(text);
-		return el("th", side === "row" ? [cell, "_"] : ["_", cell], {
+		return el("th", side === "row" ? [cell, " ◌"] : ["◌ ", cell], {
 			class: "zonai",
 			style: {
 				"font-size": "65%",
@@ -440,7 +450,7 @@ function sectionBigramFrequency() {
 		});
 	};
 	const jTh = (text, side) => {
-		return el("th", side === "row" ? text + "_" : "_" + text, {
+		return el("th", side === "row" ? text + " ◌" : "◌ " + text, {
 			style: {
 				"font-size": "75%",
 			},
