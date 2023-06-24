@@ -67,6 +67,14 @@ function* partitionsIntoSizes(elements, sizes) {
 
 const cipherLetterList = {};
 function elCipherLetter(letter) {
+	if (typeof letter !== "string") {
+		throw new Error("expected string");
+	} else if (letter.length === 0) {
+		return [];
+	} else if (letter.length > 1) {
+		return letter.split("").map(elCipherLetter);
+	}
+
 	cipherLetterList[letter] = cipherLetterList[letter] || [];
 	const e = el("span", letter, { "data-cipher": letter });
 	cipherLetterList[letter].push(e);
@@ -581,6 +589,44 @@ function sectionBigramFrequency() {
 	);
 }
 
+function sectionTrigramFrequency() {
+	const section = document.getElementById("trigram-frequency");
+
+	const zonaiCorpus = samples.map(sample => sample.content.join("")).join("");
+	const zonaiTrigrams = ngrams(zonaiCorpus, 3);
+	const japaneseTrigrams = ngrams(processedRomaji, 3);
+
+	zonaiTrigrams.entries.splice(15);
+	const zonaiTable = renderUnigramTable(zonaiTrigrams, {
+		"min-width": "10em",
+		"flex-grow": "1",
+		"flex-basis": "10em",
+	}, elCipherLetter);
+	zonaiTable.classList.add("zonai-ngram");
+
+	japaneseTrigrams.entries.splice(15);
+	const japaneseTable = renderUnigramTable(japaneseTrigrams, {
+		"min-width": "10em",
+		"flex-grow": "1",
+		"flex-basis": "10em",
+	});
+
+	const sideBySide = el("div",
+		[zonaiTable, japaneseTable],
+		{
+			style: {
+				display: "flex",
+				"flex-direction": "row",
+				"flex-wrap": "wrap",
+				"justify-content": "space-between",
+				gap: "1em",
+			},
+		},
+	);
+
+	section.appendChild(sideBySide);
+}
+
 let processedRomaji = "";
 
 function simplifyRomaji(romaji) {
@@ -674,3 +720,4 @@ await processRomajiSample();
 sectionLetterFrequency();
 sectionBigramFrequency();
 sectionTryACipher();
+sectionTrigramFrequency();
