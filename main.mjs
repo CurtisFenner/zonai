@@ -662,6 +662,33 @@ async function processRomajiSample() {
 
 function cipherSelectorBox(zonaiLetter) {
 	const urlState = new URL(window.location.href);
+
+	const updateCipher = e => {
+		const setting = e.target.value.trim();
+		for (const cell of cipherLetterList[zonaiLetter]) {
+			if (setting) {
+				cell.classList.remove("zonai");
+				cell.classList.add("romaji");
+				cell.textContent = setting;
+			} else {
+				cell.textContent = zonaiLetter;
+				cell.classList.remove("romaji");
+				cell.classList.add("zonai");
+			}
+		}
+
+		const newURL = new URL(window.location.href);
+		if (setting) {
+			newURL.searchParams.set(zonaiLetter, setting);
+		} else {
+			newURL.searchParams.delete(zonaiLetter);
+		}
+		window.history.replaceState({}, "", newURL.toString());
+	}
+
+	const initialValue = urlState.searchParams.get(zonaiLetter) || "";
+	updateCipher({ target: { value: initialValue } });
+
 	return el("label", [
 		el("span", zonaiLetter, {
 			class: "zonai",
@@ -673,29 +700,8 @@ function cipherSelectorBox(zonaiLetter) {
 		}),
 		el("input", [], {
 			maxlength: 1,
-			value: urlState.searchParams.get(zonaiLetter) || "",
-			input: (e) => {
-				const setting = e.target.value.trim();
-				for (const cell of cipherLetterList[zonaiLetter]) {
-					if (setting) {
-						cell.classList.remove("zonai");
-						cell.classList.add("romaji");
-						cell.textContent = setting;
-					} else {
-						cell.textContent = zonaiLetter;
-						cell.classList.remove("romaji");
-						cell.classList.add("zonai");
-					}
-				}
-
-				const newURL = new URL(window.location.href);
-				if (setting) {
-					newURL.searchParams.set(zonaiLetter, setting);
-				} else {
-					newURL.searchParams.delete(zonaiLetter);
-				}
-				window.history.replaceState({}, "", newURL.toString());
-			},
+			value: initialValue,
+			input: updateCipher,
 			style: { padding: "0.7em", width: "1.5em", "text-align": "center" },
 		})
 	]);
@@ -719,5 +725,5 @@ function sectionTryACipher() {
 await processRomajiSample();
 sectionLetterFrequency();
 sectionBigramFrequency();
-sectionTryACipher();
 sectionTrigramFrequency();
+sectionTryACipher();
