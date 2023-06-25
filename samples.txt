@@ -238,6 +238,32 @@ S
 L
 M
 
+# shrines/inner-chamber-pillar
+H
+N
+D
+B
+S
+L
+M
+H
+N
+
+# shrines/locked-door
+L
+S
+W
+Y
+
+# shrines/gear
+clockwise
+S   H   S   H
+W J J W W J J W
+  L   Y   L   Y
+  S   H   S   H
+// a strange arrangement of "HJLSW"?
+
+
 //# shrines/voice/you-who-offers
 //rightward
 //TCJWTRCJR
@@ -317,6 +343,19 @@ B
 T
 U
 R
+
+# equipment/zonaite-longsword
+U
+B
+M
+
+# equipment/mighty-zonaite-shield
+C Y
+N R
+W H
+S U
+U L
+
 
 # devices/mirror
 R
@@ -493,6 +532,13 @@ L
 # devices/turret
 L
 S
+
+# devices/glider
+H
+J
+L
+S
+Y
 
 # device-dispenser/globe
 D
