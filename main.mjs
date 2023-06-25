@@ -95,7 +95,9 @@ function renderZonaiSample(sample) {
 		const ring = createTextRing(sample.content);
 		tableWrapper.appendChild(ring);
 	} else if (sample.directives.includes("clockwise")) {
-		const ring = createTextRing(sample.content.map(x => x.split("").reverse().join("")));
+		const width = Math.max(...sample.content.map(x => x.length));
+		const flipped = sample.content.map(x => (x + " ".repeat(width - x.length)).split("").reverse().join(""));
+		const ring = createTextRing(flipped);
 		tableWrapper.appendChild(ring);
 	} else {
 		const table = createTextGridTable(sample.content);
@@ -161,7 +163,8 @@ function createTextRing(lines) {
 	}
 
 	const characterSpaceEm = 2;
-	const circumferenceEm = lines[0].length * characterSpaceEm;
+	const width = Math.max(...lines.map(x => x.length));
+	const circumferenceEm = width * characterSpaceEm;
 	const radiusEm = circumferenceEm / (2 * Math.PI);
 	const div = document.createElement("div");
 	const canvasSize = 2 * radiusEm + (1 + 2 * lines.length) * characterSpaceEm;
@@ -182,7 +185,7 @@ function createTextRing(lines) {
 			cell.style.position = "absolute";
 			cell.style.textAlign = "center";
 			cell.textContent = c;
-			const angleDeg = (i / line.length) * 360;
+			const angleDeg = (i / width) * 360;
 			cell.className = "radial";
 			cell.style.setProperty("--radial-angle", -angleDeg.toFixed(2) + "deg");
 			cell.style.setProperty("--radial-radius", (radiusEm + (lines.length - row) * characterSpaceEm).toFixed(2) + "em");
