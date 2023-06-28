@@ -1,28 +1,116 @@
-const sampleText = await (await fetch("samples.txt")).text();
+/**
+ * @return {Promise<ZonaiSample[]>}
+ */
+async function loadZonaiSamples() {
+	const sampleText = await (await fetch("samples.txt")).text();
+	/**
+	 * @type { { title: string, grid: string[], attributes: string[] }[] }
+	 */
+	const samples = [];
+	for (const line of sampleText.split("\n")) {
+		if (line.startsWith("#")) {
+			samples.push({
+				title: line.substring(1).trim(),
+				grid: [],
+				attributes: [],
+			});
+		} else if (line.startsWith("//")) {
+			// samples[samples.length - 1].comments.push(line.substring(2));
+		} else if (line.match(/^[a-z: -]+$/)) {
+			samples[samples.length - 1].attributes.push(line);
+		} else if (line.trim() !== "") {
+			samples[samples.length - 1].grid.push(line);
+		}
+	}
+	return samples.map(p => new ZonaiSample(p));
+}
 
 /**
- * @type {Array<{ title: string, content: string[], comments: string[], directives: string[]}>}
+ * @typedef {{alphabet: string}} Lang
  */
-const samples = [];
-for (const line of sampleText.split("\n")) {
-	if (line.startsWith("#")) {
-		samples.push({
-			title: line.substring(1).trim(),
-			content: [],
-			comments: [],
-			directives: [],
-		});
-	} else if (line.startsWith("//")) {
-		samples[samples.length - 1].comments.push(line.substring(2));
-	} else if (line.match(/^[a-z: -]+$/)) {
-		samples[samples.length - 1].directives.push(line);
-	} else if (line.trim() !== "") {
-		samples[samples.length - 1].content.push(line);
+const ZonaiLang = { alphabet: "BCDHJLMNRSTUWY" };
+const RomajiLang = { alphabet: "aeioukstnhmyrw" };
+
+class ZonaiSample {
+	/**
+	 * @param data { { title: string, grid: string[], attributes: string[] } }
+	 */
+	constructor(data) {
+		const width = Math.max(...data.grid.map(x => x.length));
+		this.title = data.title;
+		this.grid = data.grid.map(x => x + " ".repeat(width - x.length));
+		this.attributes = data.attributes;
+	}
+
+	isCircular() {
+		return this.attributes.includes("ring") || this.attributes.includes("rings");
+	}
+
+	/**
+	 * @param {ReadingDirection} direction 
+	 * @return string[]
+	 */
+	readColumns(direction) {
+		const width = this.grid[0].length;
+		const out = [];
+		const delta = direction === "left-to-right" ? +1 : -1;
+		const start = direction === "left-to-right" ? 0 : width - 1;
+		for (let column = start; 0 <= column && column < direction.length; column += delta) {
+			let str = "";
+			for (let row = 0; row < this.grid.length; row++) {
+				str += this.grid[row][column];
+			}
+			out.push(str);
+		}
+		return out;
+	}
+
+	/**
+	 * @param direction {"left-to-right" | "right-to-left"}
+	 * @return string[]
+	 */
+	readRows(direction) {
+		if (direction === "left-to-right") {
+			return this.grid;
+		} else if (direction === "right-to-left") {
+			return this.grid.map(x => x.split("").reverse().join(""));
+		}
+		throw new Error("bad direction `" + JSON.stringify(direction) + "`");
+	}
+
+	/**
+	 * @param direction {"left-to-right" | "right-to-left"}
+	 * @param repeat {number}
+	 * @return string[]
+	 */
+	readRingsAsRows(direction, repeat) {
+		return this.readRows(direction).map(x => x.repeat(repeat))
 	}
 }
 
 /**
- * @type {T}
+ * @typedef {"left-to-right" | "right-to-left"} ReadingDirection
+ * @typedef { { defaultRings: ReadingDirection, defaultColumns: ReadingDirection }} Reading
+ */
+
+/**
+ * @param {ZonaiSample[]} samples
+ * @param {Reading} reading
+ */
+function readZonaiCorpus(samples, reading) {
+	const sentences = [];
+	for (const sample of samples) {
+		if (sample.isCircular()) {
+			sentences.push(...sample.readRingsAsRows(reading.defaultRings, 1));
+		} else {
+			sentences.push(...sample.readColumns(reading.defaultColumns));
+		}
+	}
+	return sentences;
+}
+
+/**
+ * @template T
  * @param elements {T[]}
  * @param size {number}
  * @return {Generator<{in: T[], out: T[]}>}
@@ -41,12 +129,11 @@ function* subsetsOfSize(elements, size) {
 	}
 }
 
-
 /**
- * @type {T}
+ * @template T
  * @param elements {T[]}
  * @param sizes {number[]}
- * @return {Generator<T[]>}
+ * @return {Generator<T[][]>}
  */
 function* partitionsIntoSizes(elements, sizes) {
 	if (sizes.length === 1) {
@@ -65,7 +152,45 @@ function* partitionsIntoSizes(elements, sizes) {
 	}
 }
 
+/**
+ * @param {Lang} lang
+ * @param {string[]} samples
+ * @param {number} n 
+ * @returns {{total: number, frequencies: Record<string, number>}[]}
+ */
+function frequencyByPosition(samples, lang, n) {
+	const out = [];
+	for (let i = 0; i < n; i++) {
+		/**
+		 * @type { {total: number, frequencies: Record<string, number>} }
+		 */
+		const row = { total: 0, frequencies: {} };
+		for (const letter of lang.alphabet) {
+			row.frequencies[letter] = 0;
+		}
+		out.push(row);
+	}
+	for (const sample of samples) {
+		for (let i = 0; i < n && i < sample.length; i++) {
+			const letter = sample[i];
+			if (letter in out[i].frequencies) {
+				out[i].frequencies[letter] += 1;
+				out[i].total += 1;
+			}
+		}
+	}
+	return out;
+}
+
+/**
+ * @type {Record<string, HTMLElement[]>}
+ */
 const cipherLetterList = {};
+
+/**
+ * @param {string} letter
+ * @returns { NestedArrays<ElArg> | ElArg }
+ */
 function elCipherLetter(letter) {
 	if (typeof letter !== "string") {
 		throw new Error("expected string");
@@ -81,47 +206,47 @@ function elCipherLetter(letter) {
 	return e;
 }
 
+/**
+ * @param {ZonaiSample} sample 
+ */
 function renderZonaiSample(sample) {
-	const box = document.createElement("div");
-	box.className = "sample-box";
 	const tableWrapper = document.createElement("div");
 	tableWrapper.className = "table-wrapper";
-	const label = document.createElement("div");
-	label.textContent = sample.title;
-	label.className = "label";
-	box.appendChild(label);
+	const label = el("div", sample.title, { class: "label" });
 
-	if (sample.directives.includes("counterclockwise")) {
-		const ring = createTextRing(sample.content);
-		tableWrapper.appendChild(ring);
-	} else if (sample.directives.includes("clockwise")) {
-		const width = Math.max(...sample.content.map(x => x.length));
-		const flipped = sample.content.map(x => (x + " ".repeat(width - x.length)).split("").reverse().join(""));
-		const ring = createTextRing(flipped);
+	if (sample.isCircular()) {
+		const ring = createTextRing(sample.grid);
 		tableWrapper.appendChild(ring);
 	} else {
-		const table = createTextGridTable(sample.content);
+		const table = createTextGridTable(sample.grid);
 		tableWrapper.appendChild(table);
 		table.style.setProperty("--border-color", "transparent");
 	}
 	tableWrapper.className = "zonai";
-	box.appendChild(tableWrapper);
-	return box;
+
+	return el("div", [label, tableWrapper], { class: "sample-box" });
 }
 
-const container = document.getElementById("text-samples");
-for (const sample of samples) {
-	container.appendChild(renderZonaiSample(sample));
-}
-
-for (const match of document.getElementsByClassName("display-zonai")) {
-	const title = match.getAttribute("data-display-zonai-title");
-	const sample = samples.find(x => x.title === title);
-	if (!sample) {
-		throw new Error("did not find any sample with title `" + title + "`");
+/**
+ * @param {ZonaiSample[]} zonaiSamples
+ */
+async function sectionTextSamples(zonaiSamples) {
+	const container = document.getElementById("text-samples");
+	if (!container) throw new Error("text-samples does not exist");
+	for (const sample of zonaiSamples) {
+		container.appendChild(renderZonaiSample(sample));
 	}
-	match.appendChild(renderZonaiSample(sample));
+
+	for (const match of document.getElementsByClassName("display-zonai")) {
+		const title = match.getAttribute("data-display-zonai-title");
+		const sample = zonaiSamples.find(x => x.title === title);
+		if (!sample) {
+			throw new Error("did not find any sample with title `" + title + "`");
+		}
+		match.appendChild(renderZonaiSample(sample));
+	}
 }
+
 
 /**
  * @param lines {string[]}
@@ -139,23 +264,8 @@ function createTextGridTable(lines) {
 	return table;
 }
 
-function readColumnsRightToLeft(lines) {
-	let widest = Math.max(...lines.map(x => x.length));
-	let columns = [];
-	for (let c = widest - 1; c >= 0; c--) {
-		let column = "";
-		for (let r = 0; r < lines.length; r++) {
-			if (lines[r][c]) {
-				column += lines[r][c];
-			}
-		}
-		columns.push(column);
-	}
-	return columns;
-}
-
 /**
- * @param line {string[]}
+ * @param lines {string[]}
  */
 function createTextRing(lines) {
 	if (!Array.isArray(lines)) {
@@ -180,17 +290,19 @@ function createTextRing(lines) {
 		const line = lines[row];
 		let i = 0;
 		for (const c of line) {
-			const cell = elCipherLetter(c);
-			cell.style.display = "inline-block";
-			cell.style.position = "absolute";
-			cell.style.textAlign = "center";
-			cell.textContent = c;
 			const angleDeg = (i / width) * 360;
-			cell.className = "radial";
-			cell.style.setProperty("--radial-angle", -angleDeg.toFixed(2) + "deg");
-			cell.style.setProperty("--radial-radius", (radiusEm + (lines.length - row) * characterSpaceEm).toFixed(2) + "em");
+			const wrapper = el("div", elCipherLetter(c), {
+				class: "radial",
+				style: {
+					display: "inline-block",
+					position: "absolute",
+					textAlign: "center",
+					"--radial-angle": -angleDeg.toFixed(2) + "deg",
+					"--radial-radius": (radiusEm + (lines.length - row) * characterSpaceEm).toFixed(2) + "em",
+				},
+			});
 			i++;
-			center.appendChild(cell);
+			center.appendChild(wrapper);
 		}
 	}
 	return div;
@@ -200,20 +312,39 @@ function createTextRing(lines) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+document.createElement
+
+/**
+ * @typedef {string | number | HTMLElement} ElArg 
+ */
+
+/**
+ * @template T
+ * @typedef {(T | NestedArrays<T>)[]} NestedArrays
+ */
+
+/**
+ * @template {keyof HTMLElementTagNameMap} K 
+ * @param tag {K}
+ * @param content {NestedArrays<ElArg> | ElArg}
+ * @param attributes {object}
+ * @return {HTMLElementTagNameMap[K]}
+ */
 function el(tag, content = [], attributes = {}) {
-	if (!Array.isArray(content)) {
+	if (typeof content === "string" || typeof content === "number" || content instanceof HTMLElement) {
 		return el(tag, [content], attributes);
 	}
 
 	const e = document.createElement(tag);
-	for (const c of content.flat(100)) {
+	for (const c of content.flat(5)) {
 		if (typeof c === "string") {
 			e.appendChild(document.createTextNode(c));
 		} else if (typeof c === "number" || typeof c === "boolean") {
 			e.appendChild(document.createTextNode(String(c)));
 		} else {
 			if (!(c instanceof Node)) {
-				console.error("attempting to append non node", c, "to", e);
+				console.error("attempting to append non-node", c, "to", e);
+				throw new Error("attepmtin to append non-node");
 			}
 			e.appendChild(c);
 		}
@@ -226,7 +357,7 @@ function el(tag, content = [], attributes = {}) {
 			e.setAttribute(k, v);
 		}
 	}
-	for (const [p, v] of Object.entries(attributes.style || {})) {
+	for (const [p, v] of Object.entries({ style: {}, ...attributes }.style || {})) {
 		e.style.setProperty(p, v);
 	}
 	return e;
@@ -234,6 +365,8 @@ function el(tag, content = [], attributes = {}) {
 
 /**
  * @param ngrams {{entries: {ngram: string, count: number}[], total: number}}
+ * @param {any} style
+ * @param {(x: string) => ElArg | NestedArrays<ElArg>} [heading=x => x] 
  */
 function renderUnigramTable(ngrams, style, heading = x => x) {
 	const most = ngrams.entries[0].count;
@@ -274,6 +407,9 @@ function renderUnigramTable(ngrams, style, heading = x => x) {
 }
 
 /**
+ * @param {Record<string, number>} bigrams
+ * @param {string[]} letterOrder
+ * @param {(text: string, side: "row" | "column") => ElArg} [makeTh=(text, side) => el("th", text)] 
  * @returns {HTMLTableElement}
  */
 function tableTable(bigrams, letterOrder, makeTh = (text, side) => el("th", text)) {
@@ -315,6 +451,9 @@ function tableTable(bigrams, letterOrder, makeTh = (text, side) => el("th", text
  */
 function ngrams(text, n) {
 	let total = 0;
+	/**
+	 * @type {Record<string, number>}
+	 */
 	const frequency = {};
 	const dense = text.replace(/[^a-zA-Z|]/g, "");
 	for (let i = 0; i + n < dense.length; i++) {
@@ -336,12 +475,17 @@ function ngrams(text, n) {
 
 /**
  * @param text {string}
+ * @param {(text: string, side: "row" | "column") => ElArg} makeTh 
  */
 function makeBigramTable(text, makeTh) {
 	const unigrams = ngrams(text, 1);
 	const bigrams = ngrams(text, 2);
 
 	const letterOrder = unigrams.entries.map(({ ngram }) => ngram);
+
+	/**
+	 * @type {Record<string, number>}
+	 */
 	const relative = {};
 	for (const leading of letterOrder) {
 		for (const trailing of letterOrder) {
@@ -357,10 +501,17 @@ function makeBigramTable(text, makeTh) {
 }
 
 // Determine letter frequency
-function sectionLetterFrequency() {
+/**
+ * @param {ZonaiSample[]} zonaiSamples 
+ * @param {string} processedRomaji 
+ */
+function sectionLetterFrequency(zonaiSamples, processedRomaji) {
 	const section = document.getElementById("letter-frequency");
+	if (!section) {
+		throw new Error("missing letter-frequency");
+	}
 
-	const zonaiCorpus = samples.map(sample => sample.content.join("")).join("");
+	const zonaiCorpus = readZonaiCorpus(zonaiSamples, { defaultColumns: "right-to-left", defaultRings: "right-to-left" }).join("  ");
 	const zonaiUnigrams = ngrams(zonaiCorpus, 1);
 	const japaneseUnigrams = ngrams(processedRomaji, 1);
 
@@ -418,7 +569,17 @@ function sectionLetterFrequency() {
 	section.appendChild(sideBySide);
 }
 
+/**
+ * @template {string} K
+ * @template V
+ * @param {Record<K, V>} a
+ * @param {Record<K, V>} b
+ * @returns {Record<K, {left?: V, right?: V}>}
+ */
 function zipMaps(a, b) {
+	/**
+	 * @type any
+	 */
 	const out = {};
 	for (const [k, v] of Object.entries(a)) {
 		out[k] = { left: v };
@@ -430,6 +591,9 @@ function zipMaps(a, b) {
 	return out;
 }
 
+/**
+ * @param {Iterable<number>} seq 
+ */
 function sum(seq) {
 	let sum = 0;
 	for (const v of seq) {
@@ -438,19 +602,21 @@ function sum(seq) {
 	return sum;
 }
 
-function sectionBigramFrequency() {
+/**
+ * @param {Reading} reading
+ * @param {ZonaiSample[]} zonaiSamples
+ * @param {string} processedRomaji 
+ */
+function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 	const section = document.getElementById("bigram-frequency");
+	if (!section) throw new Error("missing bigram-frequency section");
 
-	let zonaiColumnized = [];
-	for (const sample of samples) {
-		if (sample.directives.length === 0) {
-			const c = readColumnsRightToLeft(sample.content);
-			zonaiColumnized.push({ title: sample.title, text: c });
-		} else if (sample.directives.includes("counterclockwise")) {
-			zonaiColumnized.push({ title: sample.title, text: sample.content });
-		}
-	}
+	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading);
 
+	/**
+	 * @param {string} text
+	 * @param {unknown} side
+	 */
 	const zonaiTh = (text, side) => {
 		const cell = elCipherLetter(text);
 		return el("th", side === "row" ? [cell, " ◌"] : ["◌ ", cell], {
@@ -460,6 +626,11 @@ function sectionBigramFrequency() {
 			},
 		});
 	};
+
+	/**
+	 * @param {string} text
+	 * @param {unknown} side
+	 */
 	const jTh = (text, side) => {
 		return el("th", side === "row" ? text + " ◌" : "◌ " + text, {
 			style: {
@@ -468,8 +639,7 @@ function sectionBigramFrequency() {
 		});
 	};
 
-	const zonaiCorpus = zonaiColumnized.map(t => t.text.join("|")).join("|");
-	const zonaiTable = makeBigramTable(zonaiCorpus, zonaiTh);
+	const zonaiTable = makeBigramTable(zonaiCorpus.join("|"), zonaiTh);
 	const romajiTable = makeBigramTable(processedRomaji, jTh);
 
 	const sideBySide = el("div",
@@ -486,67 +656,9 @@ function sectionBigramFrequency() {
 	);
 	section.appendChild(sideBySide);
 
-	if (false) {
-		section.appendChild(el("br"));
-
-		const japaneseStructure = makeBigramTable(
-			processedRomaji
-				.replace(/[aeiou]/g, "a") // 5/14
-				.replace(/[ksmyrht]/g, "k") // 7/9
-				.replace(/[w]/g, "w") // 1/2
-				.replace(/[n]/g, "n"), // 1/1
-			jTh
-		);
-		section.appendChild(japaneseStructure);
-
-		const zonaiBigrams = ngrams(zonaiCorpus, 2);
-		const romajiBigrams = ngrams(processedRomaji, 2);
-		const romajiBigramCountMap = Object.fromEntries(romajiBigrams.entries.map(entry => [entry.ngram, entry.count]));
-
-		let best = { error: Infinity, reduction: null };
-
-		for (const [aPart, kPart, wPart, nPart] of partitionsIntoSizes("BCDHJLMNRSTUWY".split(""), [5, 7, 1, 1])) {
-			const reduction = {};
-			for (const [k, vs] of Object.entries({ a: aPart, k: kPart, w: wPart, n: nPart })) {
-				for (const v of vs) {
-					reduction[v] = k;
-				}
-			}
-
-			const reducedBigrams = {};
-			for (const entry of zonaiBigrams.entries) {
-				const bigram = entry.ngram;
-				const reducedBigram = reduction[bigram[0]] + reduction[bigram[1]];
-				reducedBigrams[reducedBigram] = (reducedBigrams[reducedBigram] || 0) + 1;
-			}
-
-			const zipped = zipMaps(romajiBigramCountMap, reducedBigrams);
-			let error = 0;
-			for (const { left, right } of Object.values(zipped)) {
-				const leftFraction = ((left || 0) + 1) / (romajiBigrams.total + 2);
-				const rightFraction = ((right || 0) + 1) / (zonaiBigrams.total + 2);
-				const different = leftFraction / rightFraction + rightFraction / leftFraction;
-				error += different;
-			}
-
-			if (best.error > error) {
-				best = { error, reduction };
-			}
-		}
-
-		console.log(best);
-		let reducedZonai = zonaiCorpus;
-		for (const [k, v] of Object.entries(best.reduction)) {
-			reducedZonai = reducedZonai.replace(new RegExp(k, "g"), v.toUpperCase());
-		}
-		console.log(reducedZonai.toUpperCase());
-
-		const zonaiStructure = makeBigramTable(
-			reducedZonai
-		);
-		section.appendChild(zonaiStructure);
-	}
-
+	/**
+	 * @param {string} s 
+	 */
 	function toLetterBox(s) {
 		return el("span", s, {
 			style: {
@@ -558,6 +670,9 @@ function sectionBigramFrequency() {
 		});
 	}
 
+	/**
+	 * @param {string} s
+	 */
 	function toLetterBoxes(s) {
 		const out = [];
 		for (const c of s) {
@@ -570,33 +685,39 @@ function sectionBigramFrequency() {
 		return out;
 	}
 
-	container.appendChild(
+	section.appendChild(
 		el("details", [
 			el("summary", "Zonai corpus for ngrams"),
 			el("p", "Below is the text, read as columns, right-to-left, for all of the samples."),
 			el(
 				"blockquote",
-				zonaiColumnized.map((z, i) => [
-					i === 0 ? [] : el("hr"),
-					el(
-						"p", [
-						el("span", toLetterBoxes(z.text.join(" - ")), { class: "zonai" }),
+				zonaiSamples.map((sample, sampleIndex) => {
+					const lines = readZonaiCorpus([sample], reading)
+					return [
+						sampleIndex === 0 ? [] : el("hr"),
+						el("span", toLetterBoxes(lines.join(" - ")), { class: "zonai" }),
 						el("br"),
-						el("small", z.title, { style: { opacity: 0.75 } }),
-					]
-					)
-				]
-				),
+						el("small", sample.title, { style: { opacity: 0.75 } }),
+					];
+				}),
 			)
 		])
 	);
 }
 
-function sectionTrigramFrequency() {
+/**
+ * @param {ZonaiSample[]} zonaiSamples
+ * @param {Reading} reading
+ * @param {string} processedRomaji 
+ */
+function sectionTrigramFrequency(zonaiSamples, reading, processedRomaji) {
 	const section = document.getElementById("trigram-frequency");
+	if (!section) {
+		throw new Error("missing trigram-frequency section");
+	}
 
-	const zonaiCorpus = samples.map(sample => sample.content.join("")).join("");
-	const zonaiTrigrams = ngrams(zonaiCorpus, 3);
+	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading);
+	const zonaiTrigrams = ngrams(zonaiCorpus.join("|"), 3);
 	const japaneseTrigrams = ngrams(processedRomaji, 3);
 
 	zonaiTrigrams.entries.splice(15);
@@ -630,13 +751,14 @@ function sectionTrigramFrequency() {
 	section.appendChild(sideBySide);
 }
 
-let processedRomaji = "";
-
+/**
+ * @param {string} romaji
+ */
 function simplifyRomaji(romaji) {
 	return romaji
 		.replace(/fu/g, "hu")
-		.replace(/ch([aeuo])/g, "tiy$1")
-		.replace(/(?:sh|j)([aeuo])/g, "siy$1")
+		.replace(/ch([aeuo])/g, "ty$1")
+		.replace(/(?:sh|j)([aeuo])/g, "sy$1")
 		.replace(/shi/g, "si")
 		.replace(/chi/g, "ti")
 		.replace(/tsu/g, "tu")
@@ -644,28 +766,44 @@ function simplifyRomaji(romaji) {
 		.replace(/[jz]/g, "s")
 		.replace(/g/g, "k")
 		.replace(/[pb]/g, "h")
-		.replace(/([kshnmr])y/g, "$1iy")
+		// .replace(/([kshnmrt])y/g, "$1iy")
 		.replace(/([skth])\1/g, "tu$1")
 		.replace(/([aeiou])\1/g, "$1");
 }
 
 async function processRomajiSample() {
-	const romaji = document.getElementById("romaji-sample").textContent.trim();
+	const sourceDiv = document.getElementById("romaji-sample");
+	if (!sourceDiv) {
+		throw new Error("missing romaji-sample element");
+	}
+
+	const romaji = (sourceDiv.textContent || "").trim();
 
 	const processed = simplifyRomaji(romaji);
 
 	const wikipedia = await (await fetch("wikipedia-romaji.txt")).text();
-	const processedWikipedia = simplifyRomaji(wikipedia.normalize("NFKD").toLowerCase()
-		.replace(/[^a-z]/g, ""))
-		.replace(/[^aeiouksthrmnyw]/g, "");
+	const processedWikipedia = simplifyRomaji(wikipedia.normalize("NFKD").toLowerCase());
+	const wikipediaSentences = processedWikipedia.replace(/[^.aeiouksthrmnyw]/g, "").split(".");
 
-	document.getElementById("romaji-sample-processed").textContent = processed;
-	processedRomaji = processed + processedWikipedia;
+	const section = document.getElementById("romaji-sample-processed");
+	if (!section) {
+		throw new Error("missing romaji-sample-processed");
+	}
+
+	section.textContent = processed;
+	return processed + "\n" + processedWikipedia
+		.replace(/[^aeiouksthrmnyw.]/g, "");
 }
 
+/**
+ * @param {string} zonaiLetter 
+ */
 function cipherSelectorBox(zonaiLetter) {
 	const urlState = new URL(window.location.href);
 
+	/**
+	 * @param { {target: {value: string}} } e
+	 */
 	const updateCipher = e => {
 		const setting = e.target.value.trim();
 		for (const cell of cipherLetterList[zonaiLetter]) {
@@ -710,8 +848,62 @@ function cipherSelectorBox(zonaiLetter) {
 	]);
 }
 
+/**
+ * @param {string} romajiCorpus 
+ * @param {ZonaiSample[]} zonaiSamples 
+ * @param {Reading} reading
+ */
+function sectionWordStarts(zonaiSamples, romajiCorpus, reading) {
+	/**
+	 * @param frequencies { {total: number, frequencies: Record<string, number>}[] }
+	 * @param {Lang} lang 
+	 * @param {(i: string) => NestedArrays<ElArg> | ElArg} [th=i => i] 
+	 */
+	function makeTable(frequencies, lang, th = i => i) {
+		const rows = [];
+		rows.push(el("tr",
+			[
+				el("th", []),
+				frequencies.map((_, positionIndex) => el("th", positionIndex + 1)),
+			]
+		));
+		for (const letter of lang.alphabet) {
+			rows.push(el("tr",
+				[
+					el("th", th(letter)),
+					frequencies.map(statsForPosition => {
+						const count = statsForPosition.frequencies[letter] || 0;
+						return el("td", (100 * count / statsForPosition.total).toFixed(1) + "%");
+					}),
+				],
+			));
+		}
+
+		return el("table", rows);
+	}
+
+	const count = 3;
+	const romajiFrequenciesByPosition = frequencyByPosition(romajiCorpus.split(/[^a-z]+/g), RomajiLang, count)
+	const zonaiFrequenciesByPosition = frequencyByPosition(readZonaiCorpus(zonaiSamples, reading), ZonaiLang, count);
+
+	const section = document.getElementById("word-starts");
+	if (!section) throw new Error("missing word-starts");
+	const japaneseTable = makeTable(romajiFrequenciesByPosition, RomajiLang);
+	const zonaiTable = makeTable(zonaiFrequenciesByPosition, ZonaiLang);
+	const flexy = el("div", [
+		zonaiTable, japaneseTable
+	], {
+		style: {
+			display: "flex",
+			"flex-direction": "row",
+			"justify-content": "space-between",
+		},
+	});
+	section.appendChild(flexy);
+}
+
 function sectionTryACipher() {
-	const boxes = "NDSBLHMRJCWUYT".split("").map(cipherSelectorBox);
+	const boxes = ZonaiLang.alphabet.split("").map(cipherSelectorBox);
 
 	const table = el(
 		"table",
@@ -722,11 +914,27 @@ function sectionTryACipher() {
 	);
 
 	const section = document.getElementById("try-a-cipher");
+	if (!section) {
+		throw new Error("missing try-a-cipher section");
+	}
 	section.appendChild(table);
 }
 
-await processRomajiSample();
-sectionLetterFrequency();
-sectionBigramFrequency();
-sectionTrigramFrequency();
-sectionTryACipher();
+{
+	const zonaiSamples = await loadZonaiSamples();
+	await sectionTextSamples(zonaiSamples);
+	const romajiCorpus = await processRomajiSample();
+	/**
+	 * @type {Reading}
+	 */
+	const reading = {
+		defaultColumns: "right-to-left",
+		// counter-clockwise
+		defaultRings: "right-to-left",
+	};
+	sectionLetterFrequency(zonaiSamples, romajiCorpus);
+	sectionBigramFrequency(zonaiSamples, reading, romajiCorpus);
+	sectionTrigramFrequency(zonaiSamples, reading, romajiCorpus);
+	sectionWordStarts(zonaiSamples, romajiCorpus, reading);
+	sectionTryACipher();
+}

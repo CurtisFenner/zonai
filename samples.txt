@@ -95,7 +95,7 @@ W ? D
    C
 
 # temple-of-time/outdoor-circles
-clockwise
+rings
 DBDLSDDSDBDL
 BSBMLBBLBSBM
 // two rings
@@ -256,7 +256,7 @@ W
 Y
 
 # shrines/gear
-clockwise
+rings
 S   H   S   H
 W J J W W J J W
   L   Y   L   Y
@@ -265,20 +265,17 @@ W J J W W J J W
 
 
 //# shrines/voice/you-who-offers
-//rightward
 //TCJWTRCJR
 
 //# shrines/voice/reward/visitor-to
-//rightward
 //NUYBCMYSY
 
 //# shrines/voice/reward/you-have-done-well
-//rightward
 //SMTNBLNUT
 
 # shrines/portal
-counterclockwise
-WUMLSBJNHYTRDCWUMLSBJNHC
+ring
+HNJBSLMUWCHNJBSLMUWCDRTY
 
 # shrines/dragon
 D
@@ -287,7 +284,6 @@ S
 L
 
 # shrines/stone
-rightward
 ring
 BJHCNDNLUWSMRBJHSMR
 
@@ -305,13 +301,10 @@ W
 Y
 
 # shrines/pounding-pillar
-rightward
 ring
 MLSBNTMLSBNT
-...MLSBN...
 
 # shrines/ball
-rightward
 ring
 TYHYHNJBSLMUWCDR
 
@@ -356,11 +349,83 @@ W H
 S U
 U L
 
+# equipment/mighty-zonaite-sword
+U
+S
+W
+Y
+
+# devices/shock
+S
+Y
+U
+
+# devices/hover-stone/1
+    M
+M Y U
+L R D
+T
+
+# devices/hover-stone/2
+M Y T
+L M D
+  U R
+
+# devices/hover-stone/3
+  R T D
+M N U R
+U L W
+
+# devices/hover-stone/4
+M R   D
+L N U R
+  T W Y
+      M
 
 # devices/mirror
 R
 M
 N
+
+# ring-ruins/nestled
+excluded
+
+YMDLMYCCR
+UCMJBDTDW
+BNSBWSHJR
+YJWNRTNWU
+RBMTSHLUS
+UNHLCLDHJ
+
+# ring-ruins/southern
+excluded
+
+SWTWMBRSS
+DMSJDJUTU
+NTWBRCBRS
+HCHYYDMWR
+DMNCCHLHU
+LNYLNUJBJ
+
+# ring-ruins/eastern
+excluded
+
+BHNNUNBCB
+CLDJWYUYN
+TSTDSUJTR
+BHDLUMMLH
+WJLMRCJRM
+HSRWDWYCS
+
+# ring-ruins/large
+excluded
+
+NWHWTWTBR
+RJMMJCHRM
+LNWUSDUBT
+MJLCWBNMD
+DCHMYDBSC
+YTSNMLJCY
 
 # devices/shrine-sunlight
 B
@@ -418,8 +483,8 @@ L
 S
 
 # devices/stake/back
-counterclockwise
-HJLS
+ring
+HSLJ
 
 # devices/stake/side-1
 N
@@ -640,15 +705,16 @@ R
 U
 
 # resurrection/gear-1/inner-ring
-counterclockwise
-NHYTRDCYTRDCWUMLSBJ
+ring
+JBSLMUWYDRTYCDRTYHN
+// this is the same as the Shrine portal
 
 # resurrection/gear-1/middle-ring
-// written in pairs verticaly
-// around the outer edge
-// Read counterclockwise from the top
-L T B M S N
-M Y J U W H
+rings
+// written circularly,
+// but arrange in short columns of 2
+L N S M B T
+M H W U J Y
 
 # resurrection/doorway-1
  D
@@ -679,8 +745,8 @@ L
 M
 
 # resurrection/awakening
-counterclockwise
-DNTYHNMUCWDHDNTYHNMUCWDH
+ring
+HDWCUMNHYTNDHDWCUMNHYTND
 
 # prologue/wall
 H
@@ -735,3 +801,12 @@ R   R
 D   D
 W   C
 // The left side is broken
+
+# labrynth/stone
+BUJ
+ULU
+HDB
+DHS
+NWL
+CLM
+
