@@ -40,6 +40,7 @@ class ZonaiSample {
 		this.title = data.title;
 		this.grid = data.grid.map(x => x + " ".repeat(width - x.length));
 		this.attributes = data.attributes;
+		this.rejected = false;
 	}
 
 	isCircular() {
@@ -99,9 +100,13 @@ class ZonaiSample {
  */
 function readZonaiCorpus(samples, reading) {
 	const sentences = [];
-	for (const sample of samples) {
+	for (const sample of samples.filter(x => !x.rejected)) {
 		if (sample.isCircular()) {
-			sentences.push(...sample.readRingsAsRows(reading.defaultRings, 1));
+			if (sample.attributes.includes("read-in-columns")) {
+				sentences.push(...sample.readColumns(reading.defaultColumns));
+			} else {
+				sentences.push(...sample.readRingsAsRows(reading.defaultRings, 1));
+			}
 		} else {
 			sentences.push(...sample.readColumns(reading.defaultColumns));
 		}
@@ -201,8 +206,12 @@ function elCipherLetter(letter) {
 	}
 
 	cipherLetterList[letter] = cipherLetterList[letter] || [];
-	const e = el("span", letter, { "data-cipher": letter });
-	cipherLetterList[letter].push(e);
+	const inner = el("span", letter);
+	const e = el("span", [
+		inner,
+	], { "data-cipher": letter });
+	console.log(e);
+	cipherLetterList[letter].push(inner);
 	return e;
 }
 
@@ -229,12 +238,50 @@ function renderZonaiSample(sample) {
 
 /**
  * @param {ZonaiSample[]} zonaiSamples
+ * @param {Reading} reading 
  */
-async function sectionTextSamples(zonaiSamples) {
+async function sectionTextSamples(zonaiSamples, reading) {
+	const linear = readZonaiCorpus(zonaiSamples, reading);
+	const unigrams = ngrams(linear.join("|"), 1);
+	const uniform = uniformDistribution(ZonaiLang.alphabet);
+
+	/**
+	 * @param {ZonaiSample} sample 
+	 */
+	function completeRenderSample(sample) {
+		const div = renderZonaiSample(sample);
+
+		const sampleLinear = readZonaiCorpus([sample], reading).join("|");
+		const relative = relativeUnigramLikelihood(sampleLinear, uniform, unigrams);
+
+		if (relative > 10) {
+			div.classList.add("rejected");
+			div.appendChild(el("hr"));
+			div.appendChild(
+				el("div",
+					el("small", [
+						"The letter distribution is ",
+						relative.toFixed(1),
+						"x more likely to be uniform than Zonai",
+					])));
+			sample.rejected = true;
+		} else if (relative < 0.05) {
+			div.classList.add("exemplar");
+			div.appendChild(el("hr"));
+			div.appendChild(el("small", [
+				"The letter distribution is ",
+				(1 / relative).toFixed(1),
+				"x more likely to be Zonai than uniform",
+			]));
+		}
+
+		return div;
+	}
+
 	const container = document.getElementById("text-samples");
 	if (!container) throw new Error("text-samples does not exist");
 	for (const sample of zonaiSamples) {
-		container.appendChild(renderZonaiSample(sample));
+		container.appendChild(completeRenderSample(sample));
 	}
 
 	for (const match of document.getElementsByClassName("display-zonai")) {
@@ -243,7 +290,7 @@ async function sectionTextSamples(zonaiSamples) {
 		if (!sample) {
 			throw new Error("did not find any sample with title `" + title + "`");
 		}
-		match.appendChild(renderZonaiSample(sample));
+		match.appendChild(completeRenderSample(sample));
 	}
 }
 
@@ -308,7 +355,49 @@ function createTextRing(lines) {
 	return div;
 }
 
+/**
+ * @param {Iterable<string>} ngrams
+ * @returns {{entries: {ngram: string, count: number}[], total: number}}
+ */
+function uniformDistribution(ngrams) {
+	/**
+	 * @type {{entries: {ngram: string, count: number}[], total: number}}
+	 */
+	const out = { total: 0, entries: [] };
+	for (const ngram of ngrams) {
+		out.entries.push({ ngram, count: 1 });
+		out.total += 1;
+	}
+	return out;
+}
 
+/**
+ * @param {string} sample
+ * @param {{entries: {ngram: string, count: number}[], total: number}} unigrams
+ */
+function unigramLogLikelihood(sample, unigrams) {
+	let sum = 0;
+	for (const c of sample) {
+		const entry = unigrams.entries.find(x => x.ngram === c);
+		if (entry) {
+			const p = entry.count / unigrams.total;
+			sum += Math.log(p);
+		}
+	}
+	return sum;
+}
+
+/**
+ * @param {string} sample
+ * @param {{entries: {ngram: string, count: number}[], total: number}} numerator
+ * @param {{entries: {ngram: string, count: number}[], total: number}} denominator
+ */
+function relativeUnigramLikelihood(sample, numerator, denominator) {
+	const numeratorLikelihood = unigramLogLikelihood(sample, numerator);
+	const denominatorLikelihood = unigramLogLikelihood(sample, denominator);
+	const difference = numeratorLikelihood - denominatorLikelihood;
+	return Math.exp(difference);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -684,7 +773,7 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 		}
 		return out;
 	}
-
+	section.appendChild(el("br"));
 	section.appendChild(
 		el("details", [
 			el("summary", "Zonai corpus for ngrams"),
@@ -808,13 +897,17 @@ function cipherSelectorBox(zonaiLetter) {
 		const setting = e.target.value.trim();
 		for (const cell of cipherLetterList[zonaiLetter]) {
 			if (setting) {
-				cell.classList.remove("zonai");
-				cell.classList.add("romaji");
-				cell.textContent = setting;
+				if (cell.parentElement) {
+					cell.parentElement.classList.remove("zonai");
+					cell.parentElement.classList.add("romaji");
+					cell.textContent = setting;
+				}
 			} else {
-				cell.textContent = zonaiLetter;
-				cell.classList.remove("romaji");
-				cell.classList.add("zonai");
+				if (cell.parentElement) {
+					cell.textContent = zonaiLetter;
+					cell.parentElement.classList.remove("romaji");
+					cell.parentElement.classList.add("zonai");
+				}
 			}
 		}
 
@@ -921,9 +1014,6 @@ function sectionTryACipher() {
 }
 
 {
-	const zonaiSamples = await loadZonaiSamples();
-	await sectionTextSamples(zonaiSamples);
-	const romajiCorpus = await processRomajiSample();
 	/**
 	 * @type {Reading}
 	 */
@@ -932,6 +1022,11 @@ function sectionTryACipher() {
 		// counter-clockwise
 		defaultRings: "right-to-left",
 	};
+
+	const zonaiSamples = await loadZonaiSamples();
+	await sectionTextSamples(zonaiSamples, reading);
+	const romajiCorpus = await processRomajiSample();
+
 	sectionLetterFrequency(zonaiSamples, romajiCorpus);
 	sectionBigramFrequency(zonaiSamples, reading, romajiCorpus);
 	sectionTrigramFrequency(zonaiSamples, reading, romajiCorpus);

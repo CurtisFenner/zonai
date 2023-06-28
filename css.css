@@ -27,6 +27,7 @@ body {
 }
 
 .romaji {
+	position: relative;
 	padding: 0.5em;
 	font-family: var(--font);
 	background: #EEE;
@@ -90,6 +91,7 @@ td.zonai {
 	padding: 0.5em;
 	display: inline-block;
 	text-align: center;
+	vertical-align: middle;
 }
 
 .sample-box .label {
@@ -109,6 +111,15 @@ td.zonai {
 
 .radial {
 	transform: translate(-50%, -50%) rotate(var(--radial-angle)) translateY(calc(-1 * var(--radial-radius)));
+}
+
+.rejected {
+	background: #EAA;
+	border-color: #A44;
+}
+
+.exemplar {
+	background: #F0FAFF;
 }
 
 blockquote {

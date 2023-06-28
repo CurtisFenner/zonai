@@ -96,6 +96,7 @@ W ? D
 
 # temple-of-time/outdoor-circles
 rings
+read-in-columns
 DBDLSDDSDBDL
 BSBMLBBLBSBM
 // two rings
