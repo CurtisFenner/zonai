@@ -206,11 +206,23 @@ function elCipherLetter(letter) {
 	}
 
 	cipherLetterList[letter] = cipherLetterList[letter] || [];
-	const inner = el("span", letter);
+	const shadow = el("span", letter, {
+		class: "zonai",
+		style: {
+			opacity: "15%",
+			"font-weight": "bold",
+			position: "absolute",
+			left: "50%",
+			top: "50%",
+			transform: "translate(-50%, -50%)",
+			"user-select": "none",
+		},
+	});
+	const inner = el("span", letter, { style: { position: "relative" } });
 	const e = el("span", [
+		shadow,
 		inner,
 	], { "data-cipher": letter });
-	console.log(e);
 	cipherLetterList[letter].push(inner);
 	return e;
 }
