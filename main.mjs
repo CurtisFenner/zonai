@@ -1037,6 +1037,11 @@ function sectionTryACipher() {
 			el("tr", boxes.slice(0, 7).map(x => el("td", x))),
 			el("tr", boxes.slice(7, 14).map(x => el("td", x))),
 		],
+		{
+			style: {
+				display: "inline-block",
+			},
+		},
 	);
 
 	const section = document.getElementById("try-a-cipher");
