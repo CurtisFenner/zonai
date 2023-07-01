@@ -1,10 +1,11 @@
 {
   "dependencies": {
     "@rollup/plugin-commonjs": "^25.0.2",
+    "@types/node": "^20.3.3",
     "logic-solver": "^2.0.1",
     "rollup": "^3.26.0"
   },
   "scripts": {
-    "rollup-logic-solver": "npx rollup --config rollup.config.mjs"
+    "build": "npx rollup --config rollup.config.mjs && node build.mjs"
   }
 }
