@@ -992,7 +992,7 @@ function sectionWordStarts(zonaiSamples, romajiCorpus, reading) {
 	const section = document.getElementById("word-starts");
 	if (!section) throw new Error("missing word-starts");
 	const japaneseTable = makeTable(romajiFrequenciesByPosition, RomajiLang);
-	const zonaiTable = makeTable(zonaiFrequenciesByPosition, ZonaiLang);
+	const zonaiTable = makeTable(zonaiFrequenciesByPosition, ZonaiLang, elCipherLetter);
 	const flexy = el("div", [
 		zonaiTable, japaneseTable
 	], {
