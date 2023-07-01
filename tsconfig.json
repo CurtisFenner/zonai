@@ -9,6 +9,10 @@
 		"noEmit": true,
 		"target": "ES2017",
 		"module": "ES2022",
-		"strict": true
-	}
+		"strict": true,
+	},
+	"exclude": [
+		"dependencies",
+		"rollup*"
+	]
 }

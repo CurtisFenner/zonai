@@ -77,7 +77,7 @@ table {
 td,
 th {
 	border-right: 1px solid var(--border-color);
-	border-bottoM: 1px solid var(--border-color);
+	border-bottom: 1px solid var(--border-color);
 	padding: 0.25em;
 }
 

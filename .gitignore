@@ -1,1 +1,7 @@
 screenshots/
+
+
+node_modules/*
+!node_modules/underscore
+node_modules/underscore/**
+!node_modules/underscore/*esm.js*
