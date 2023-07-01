@@ -19,9 +19,16 @@ body {
 	src: url(Zonai-Regular.ttf);
 }
 
-.zonai,
-.zonai-th th,
-.zonai-ngram .ngram {
+.zonai-fade .zonai {
+	opacity: 0.18;
+	user-select: none;
+}
+
+.zonai-fade {
+	background: rgba(220, 220, 220, 0.5);
+}
+
+.zonai {
 	font-family: zonai;
 	text-align: center;
 }

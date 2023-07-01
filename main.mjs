@@ -205,26 +205,30 @@ function elCipherLetter(letter) {
 		return letter.split("").map(elCipherLetter);
 	}
 
-	cipherLetterList[letter] = cipherLetterList[letter] || [];
-	const shadow = el("span", letter, {
-		class: "zonai",
+	const zonaiText = el("span", letter, {
+		class: "center-label zonai",
 		style: {
-			opacity: "15%",
 			"font-weight": "bold",
-			position: "absolute",
-			left: "50%",
-			top: "50%",
-			transform: "translate(-50%, -50%)",
-			"user-select": "none",
 		},
 	});
-	const inner = el("span", letter, { style: { position: "relative" } });
-	const e = el("span", [
-		shadow,
-		inner,
-	], { "data-cipher": letter });
-	cipherLetterList[letter].push(inner);
-	return e;
+	const decipheredText =
+		el("span", "", {
+			class: "center-label",
+		});
+	const better = el("span", [zonaiText, decipheredText], {
+		style: {
+			position: "relative",
+			display: "inline-block",
+			width: "1.9em",
+			height: "1.9em",
+		},
+		"data-cipher": letter,
+	});
+
+	cipherLetterList[letter] = cipherLetterList[letter] || [];
+	cipherLetterList[letter].push(decipheredText);
+
+	return better;
 }
 
 /**
@@ -243,7 +247,6 @@ function renderZonaiSample(sample) {
 		tableWrapper.appendChild(table);
 		table.style.setProperty("--border-color", "transparent");
 	}
-	tableWrapper.className = "zonai";
 
 	return el("div", [label, tableWrapper], { class: "sample-box" });
 }
@@ -646,7 +649,6 @@ function sectionLetterFrequency(zonaiSamples, processedRomaji) {
 		"flex-grow": "1",
 		"flex-basis": "10em",
 	}, elCipherLetter);
-	zonaiTable.classList.add("zonai-ngram");
 
 	const japaneseTable = renderUnigramTable(japaneseUnigrams, {
 		"min-width": "10em",
@@ -721,7 +723,6 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 	const zonaiTh = (text, side) => {
 		const cell = elCipherLetter(text);
 		return el("th", side === "row" ? [cell, " ◌"] : ["◌ ", cell], {
-			class: "zonai",
 			style: {
 				"font-size": "65%",
 			},
@@ -827,7 +828,6 @@ function sectionTrigramFrequency(zonaiSamples, reading, processedRomaji) {
 		"flex-grow": "1",
 		"flex-basis": "10em",
 	}, elCipherLetter);
-	zonaiTable.classList.add("zonai-ngram");
 
 	japaneseTrigrams.entries.splice(15);
 	const japaneseTable = renderUnigramTable(japaneseTrigrams, {
@@ -910,15 +910,13 @@ function cipherSelectorBox(zonaiLetter) {
 		for (const cell of cipherLetterList[zonaiLetter]) {
 			if (setting) {
 				if (cell.parentElement) {
-					cell.parentElement.classList.remove("zonai");
-					cell.parentElement.classList.add("romaji");
+					cell.parentElement.classList.add("zonai-fade");
 					cell.textContent = setting;
 				}
 			} else {
 				if (cell.parentElement) {
-					cell.textContent = zonaiLetter;
-					cell.parentElement.classList.remove("romaji");
-					cell.parentElement.classList.add("zonai");
+					cell.textContent = "";
+					cell.parentElement.classList.remove("zonai-fade");
 				}
 			}
 		}

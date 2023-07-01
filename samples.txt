@@ -714,8 +714,8 @@ JBSLMUWYDRTYCDRTYHN
 rings
 // written circularly,
 // but arrange in short columns of 2
-L N S M B T
-M H W U J Y
+ L N S M B T
+ M H W U J Y
 
 # resurrection/doorway-1
  D
