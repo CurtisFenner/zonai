@@ -1029,7 +1029,7 @@ function sectionWordStarts(zonaiSamples, romajiCorpus, reading) {
 }
 
 function sectionTryACipher() {
-	const boxes = ZonaiLang.alphabet.split("").map(cipherSelectorBox);
+	const boxes = "SDNLBHMJRUWCYT".split("").map(cipherSelectorBox);
 
 	const table = el(
 		"table",
