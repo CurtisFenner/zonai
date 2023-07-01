@@ -1090,7 +1090,7 @@ function sectionTryACipher() {
 	}
 }
 
-import logic from "./dependencies/logic-solver.mjs";
+import logic from "dependencies/logic-solver/logic-solver.mjs";
 
 const solver = new logic.Solver();
 console.log(solver);
