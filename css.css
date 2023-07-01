@@ -111,6 +111,14 @@ td.zonai {
 	display: inline-block;
 }
 
+section[data-sample-mode="linear"] .mode-presented {
+	display: none;
+}
+
+section[data-sample-mode="presented"] .mode-linear {
+	display: none;
+}
+
 .center {
 	left: 50%;
 	top: 50%;

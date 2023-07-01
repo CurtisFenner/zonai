@@ -485,7 +485,7 @@ S
 
 # devices/stake/back
 ring
-HSLJ
+SLJH
 
 # devices/stake/side-1
 N

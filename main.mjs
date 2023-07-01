@@ -85,7 +85,7 @@ class ZonaiSample {
 	 * @return string[]
 	 */
 	readRingsAsRows(direction, repeat) {
-		return this.readRows(direction).map(x => x.repeat(repeat))
+		return this.readRows(direction).map(x => x.repeat(repeat));
 	}
 }
 
@@ -233,22 +233,29 @@ function elCipherLetter(letter) {
 
 /**
  * @param {ZonaiSample} sample 
+ * @param {Reading} reading
  */
-function renderZonaiSample(sample) {
-	const tableWrapper = document.createElement("div");
-	tableWrapper.className = "table-wrapper";
+function renderZonaiSample(sample, reading) {
+	const asPresented = document.createElement("div");
+	asPresented.className = "table-wrapper";
 	const label = el("div", sample.title, { class: "label" });
 
 	if (sample.isCircular()) {
 		const ring = createTextRing(sample.grid);
-		tableWrapper.appendChild(ring);
+		asPresented.appendChild(ring);
 	} else {
 		const table = createTextGridTable(sample.grid);
-		tableWrapper.appendChild(table);
+		asPresented.appendChild(table);
 		table.style.setProperty("--border-color", "transparent");
 	}
 
-	return el("div", [label, tableWrapper], { class: "sample-box" });
+	const linearized = readZonaiCorpus([sample], reading);
+	const asLinear = el("div", linearized.map(x => x.trim()).filter(x => x).map(x => el("div", elCipherLetter(x))));
+
+	asPresented.classList.add("mode-presented");
+	asLinear.classList.add("mode-linear");
+
+	return el("div", [label, asPresented, el("hr"), asLinear], { class: "sample-box" });
 }
 
 /**
@@ -264,7 +271,7 @@ async function sectionTextSamples(zonaiSamples, reading) {
 	 * @param {ZonaiSample} sample 
 	 */
 	function completeRenderSample(sample) {
-		const div = renderZonaiSample(sample);
+		const div = renderZonaiSample(sample, reading);
 
 		const sampleLinear = readZonaiCorpus([sample], reading).join("|");
 		const relative = relativeUnigramLikelihood(sampleLinear, uniform, unigrams);
@@ -280,7 +287,7 @@ async function sectionTextSamples(zonaiSamples, reading) {
 						"x more likely to be uniform than Zonai",
 					])));
 			sample.rejected = true;
-		} else if (relative < 0.05) {
+		} else if (relative < 0.0) {
 			div.classList.add("exemplar");
 			div.appendChild(el("hr"));
 			div.appendChild(el("small", [
@@ -349,6 +356,7 @@ function createTextRing(lines) {
 	center.style.textAlign = "center";
 	div.appendChild(center);
 	for (let row = 0; row < lines.length; row++) {
+		// Each line is presented CLOCKWISE.
 		const line = lines[row];
 		let i = 0;
 		for (const c of line) {
@@ -359,7 +367,7 @@ function createTextRing(lines) {
 					display: "inline-block",
 					position: "absolute",
 					textAlign: "center",
-					"--radial-angle": -angleDeg.toFixed(2) + "deg",
+					"--radial-angle": angleDeg.toFixed(2) + "deg",
 					"--radial-radius": (radiusEm + (lines.length - row) * characterSpaceEm).toFixed(2) + "em",
 				},
 			});
@@ -897,10 +905,31 @@ async function processRomajiSample() {
 }
 
 /**
+ * @param {string} parameter
+ */
+function getUrlParameter(parameter) {
+	const urlState = new URL(window.location.href);
+	return urlState.searchParams.get(parameter) || "";
+}
+
+/**
+ * @param {string} parameter
+ * @param {string} value
+ */
+function setUrlParameter(parameter, value) {
+	const newURL = new URL(window.location.href);
+	if (value) {
+		newURL.searchParams.set(parameter, value);
+	} else {
+		newURL.searchParams.delete(parameter);
+	}
+	window.history.replaceState({}, "", newURL.toString());
+}
+
+/**
  * @param {string} zonaiLetter 
  */
 function cipherSelectorBox(zonaiLetter) {
-	const urlState = new URL(window.location.href);
 
 	/**
 	 * @param { {target: {value: string}} } e
@@ -921,16 +950,10 @@ function cipherSelectorBox(zonaiLetter) {
 			}
 		}
 
-		const newURL = new URL(window.location.href);
-		if (setting) {
-			newURL.searchParams.set(zonaiLetter, setting);
-		} else {
-			newURL.searchParams.delete(zonaiLetter);
-		}
-		window.history.replaceState({}, "", newURL.toString());
+		setUrlParameter(zonaiLetter, setting);
 	}
 
-	const initialValue = urlState.searchParams.get(zonaiLetter) || "";
+	const initialValue = getUrlParameter(zonaiLetter);
 	updateCipher({ target: { value: initialValue } });
 
 	return el("label", [
@@ -943,7 +966,7 @@ function cipherSelectorBox(zonaiLetter) {
 			},
 		}),
 		el("input", [], {
-			maxlength: 1,
+			maxlength: 3,
 			value: initialValue,
 			input: updateCipher,
 			style: { padding: "0.7em", width: "1.5em", "text-align": "center" },
@@ -1042,4 +1065,22 @@ function sectionTryACipher() {
 	sectionTrigramFrequency(zonaiSamples, reading, romajiCorpus);
 	sectionWordStarts(zonaiSamples, romajiCorpus, reading);
 	sectionTryACipher();
+
+	for (const radio of document.getElementsByName("sample-mode")) {
+		const section = document.getElementById("text-samples");
+		if (!section) {
+			throw new Error("missing text-samples section");
+		}
+		if (!(radio instanceof HTMLInputElement)) {
+			throw new Error("unexpected name='sample-mode' element");
+		}
+		if (getUrlParameter("samples") === radio.value) {
+			radio.checked = true;
+			section.setAttribute("data-sample-mode", radio.value);
+		}
+		radio.oninput = () => {
+			setUrlParameter("samples", radio.value);
+			section.setAttribute("data-sample-mode", radio.value);
+		};
+	}
 }
