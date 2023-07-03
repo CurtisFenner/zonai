@@ -5,7 +5,7 @@ body {
 	--font: sans-serif;
 	font-family: var(--font);
 	font-size: 18px;
-	max-width: 11.5in;
+	max-width: 12in;
 	color: #11242E;
 
 	min-height: 100vh;
@@ -145,11 +145,11 @@ td.zonai {
 	display: inline-block;
 }
 
-section[data-sample-mode="linear"] .mode-presented {
+*[data-sample-mode="linear"] .mode-presented {
 	display: none;
 }
 
-section[data-sample-mode="presented"] .mode-linear {
+*[data-sample-mode="presented"] .mode-linear {
 	display: none;
 }
 
