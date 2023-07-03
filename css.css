@@ -1,17 +1,41 @@
 body {
-	padding: 0.25in;
 	margin: auto;
 	margin-top: 0;
 	margin-bottom: 0;
-	background-color: white;
 	--font: sans-serif;
 	font-family: var(--font);
 	font-size: 18px;
 	max-width: 11.5in;
 	color: #11242E;
-	box-shadow: 1px 10px 20px 5px rgba(0, 0, 0, 0.0525);
 
 	min-height: 100vh;
+}
+
+section {
+	position: relative;
+	padding: 1px 0.25in;
+	margin: 1em;
+	background: rgba(255, 255, 255, 0.9);
+	box-shadow: 1px 10px 20px 5px rgba(0, 0, 0, 0.0525);
+	border-radius: 2px;
+	padding-right: 2em;
+	margin-right: -2em;
+}
+
+section::after {
+	position: absolute;
+	display: block;
+	top: 4px;
+	bottom: 4px;
+	right: 5px;
+	width: 14px;
+	content: " ";
+	background-image: url('patch.png');
+	opacity: 0.125;
+}
+
+table {
+	margin: 1em 0;
 }
 
 html,
@@ -174,6 +198,13 @@ hr {
 	background: rgba(8, 16, 32, 0.5);
 }
 
-input {
+input,
+textarea {
 	font-size: 1em;
+	font-family: sans-serif;
+}
+
+textarea {
+	resize: vertical;
+	min-height: 6em;
 }

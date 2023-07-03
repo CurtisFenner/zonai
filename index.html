@@ -13,11 +13,15 @@
 <div style="height: 16rem;"></div>
 
 <title>Zonai Script</title>
+
+<section id="intro">
 <h1>Zonai Script<br><small>from Nintendo's Tears of the Kingdom</small></h1>
 
-This website is a collection of samples and notes on the use of the Zonai
+<p>This website is a collection of samples and notes on the use of the Zonai
 writing system in Tears of the Kingdom.
+</section>
 
+<section id="structure">
 <h2>Structure</h2>
 Zonai script is written using only 14 symbols:
 
@@ -93,10 +97,11 @@ several factors point to this script rather being a cipher for Japanese:
 				wouldn't use them.
 		</ul>
 </ul>
+</section>
 
 <section id="letter-frequency">
 	<h2>Letter Frequency</h2>
-	Some of the "letters" appear much more than others:
+	<p>Some of the "letters" appear much more than others:
 </section>
 
 <section id="bigram-frequency">
@@ -164,29 +169,212 @@ box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.125);
 	</fieldset>
 </section>
 
-<h2>Technical Details</h2>
-I used the free version of
-<a href="https://www.calligraphr.com/en/">Calligraphr</a> to create a custom TTF
-font to encode the 14 symbols.
+<section id="optimization" style="display: none">
+	<h2>Search for a Cipher</h2>
 
-You can <a href="Zonai-Regular.ttf" download>download Zonai-Regular.ttf here.</a>
+	<div style="display: flex">
+		<textarea id="optimization-input" class="zonai" style="flex-grow: 1">
+DNS
+SBNM
+NLS
+NMDS
+NBNM
+DNB
 
-<table>
-	<tr><th>B<td class=zonai>B
-	<tr><th>C<td class=zonai>C
-	<tr><th>D<td class=zonai>D
-	<tr><th>H<td class=zonai>H
-	<tr><th>J<td class=zonai>J
-	<tr><th>L<td class=zonai>L
-	<tr><th>M<td class=zonai>M
-	<tr><th>N<td class=zonai>N
-	<tr><th>R<td class=zonai>R
-	<tr><th>S<td class=zonai>S
-	<tr><th>T<td class=zonai>T
-	<tr><th>U<td class=zonai>U
-	<tr><th>W<td class=zonai>W
-	<tr><th>Y<td class=zonai>Y
-</table>
+SSLH
+</textarea><textarea id="optimization-output" disabled style="flex-grow: 1"></textarea>
+	</div>
+	<div style="display: flex">
+		<div style="flex-grow: 1"></div>
+		<textarea id="optimization-penalties" style="flex-grow: 1">
+			tn
+			nm
+			rm
+			mt
+			sw
+			mh
+			wm
+			mw
+			wt
+			w$
+			yh
+			thy
+			sn
+			nr
+			rh
+			sm
+			mr
+			rk
+			str
+			hr
+			uoei
+			hk
+			kt
+			yk
+			kr
+			mk
+			ks
+			sy$
+			sk
+			rt
+			syt
+			sym
+			sr
+			kh
+			oek$
+			rsa
+			syr
+			troo
+			st$
+			ye
+			oua
+			t$
+			sh$
+			st
+			th
+			yt
+			tm
+			wh
+			wu
+			uoe
+			aeou
+			ym
+			hm
+			mn
+			ws
+			rw
+			or$
+			rs
+			rn
+			tr
+			ur$
+			k$
+			y$
+			yn
+			nw
+			mysh
+			shn
+			nh$
+			wn
+			rys
+			nht
+			uhn
+			ar$
+			hs
+			wi
+			yiue
+			es$
+			tw
+			wy
+			yaeh
+			euro
+			ns$
+			yr$
+			yiuh$
+			yi
+			we
+			ys
+			yr
+			yw
+			km
+			eir$
+			wr
+			teahn
+			ms
+			neht
+			eiokuh
+			kuh$
+			taen
+			eui
+			ihn
+			tk
+			^wae
+			suh$
+			tsa
+			ueo
+			sah$
+			tiun
+			ieo
+			tsiuer
+			er$
+			eht
+			she
+			kn
+			aht
+			uht
+			yaoir
+			yaenura
+			uioya
+			teuh
+			uh$
+			ir$
+			uaey
+			his$
+			eut
+			eot
+			uiey
+			yuae
+			oiey
+			iutsou
+			iotsuo
+			tsua$
+			s$
+			ih$
+			eais
+			eaus
+			eh
+			iae
+			ouis
+			soeu
+			m$
+			yaoen
+			tse
+			aeyo
+			ahn
+			syk
+			wk
+			
+			iuiua
+			
+			iohn
+			heou
+			hnh
+			ah$
+			nh
+			
+</textarea>
+	</div>
+	<br>
+	<br>
+	<button id="optimization-search">Search</button>
+	<p>
+</section>
+
+<section id="technical">
+	<h2>Technical Details</h2>
+	I used the free version of
+	<a href="https://www.calligraphr.com/en/">Calligraphr</a> to create a custom TTF
+	font to encode the 14 symbols.
+
+	You can <a href="Zonai-Regular.ttf" download>download Zonai-Regular.ttf here.</a>
+
+	<table>
+		<tr><th>B<td class=zonai>B
+		<tr><th>C<td class=zonai>C
+		<tr><th>D<td class=zonai>D
+		<tr><th>H<td class=zonai>H
+		<tr><th>J<td class=zonai>J
+		<tr><th>L<td class=zonai>L
+		<tr><th>M<td class=zonai>M
+		<tr><th>N<td class=zonai>N
+		<tr><th>R<td class=zonai>R
+		<tr><th>S<td class=zonai>S
+		<tr><th>T<td class=zonai>T
+		<tr><th>U<td class=zonai>U
+		<tr><th>W<td class=zonai>W
+		<tr><th>Y<td class=zonai>Y
+	</table>
+</section>
 
 <section>
 	<h2>Japanese sample text</h2>

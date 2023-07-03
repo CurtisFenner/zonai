@@ -1,3 +1,5 @@
+import logic from "./dependencies/logic-solver/logic-solver.mjs";
+
 /**
  * @return {Promise<ZonaiSample[]>}
  */
@@ -813,6 +815,7 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 			)
 		])
 	);
+	section.appendChild(el("p"));
 }
 
 /**
@@ -1051,6 +1054,221 @@ function sectionTryACipher() {
 	section.appendChild(table);
 }
 
+/**
+ * @param {unknown[]} list
+ */
+function allUnique(list) {
+	return new Set(list).size === list.length;
+}
+
+/**
+ * @param {string} from
+ * @param {string} to
+ */
+function cipherForStrings(from, to) {
+	if (from.length !== to.length) {
+		throw new Error("length mismatch");
+	}
+
+	const arrows = new Set();
+	for (let i = 0; i < from.length; i++) {
+		arrows.add(from[i] + "->" + to[i]);
+	}
+	const zipped = [...arrows].map(([a, _1, _2, b]) => [a, b]);
+	if (!allUnique(zipped.map(x => x[0])) || !allUnique(zipped.map(x => x[1]))) {
+		return null;
+	}
+	return [...arrows];
+}
+
+/**
+ * @param {string} from 
+ * @param {string} to
+ * @param {Lang} fromLang
+ * @param {Lang} toLang   
+ */
+function cipherForLangs(from, to, fromLang, toLang) {
+	const cipher = cipherForStrings(from, to);
+	if (!cipher) {
+		return null;
+	}
+
+	const letters = cipher.map(arrow => {
+		const from = arrow[0];
+		const to = arrow[3];
+		if (fromLang.alphabet.includes(from) && toLang.alphabet.includes(to)) {
+			return arrow;
+		}
+		return from === to;
+	});
+
+	if (letters.includes(false)) {
+		// No cipher is possible, because non-alphabet characters cannot be changed.
+		return null;
+	}
+	return letters.filter(x => x !== true);
+}
+
+/**
+ * @param {string} [msg]
+ * @param {unknown} tru
+ */
+function assert(tru, msg) {
+	if (!tru) {
+		throw new Error("assertion failed: " + msg);
+	}
+}
+
+{
+	const p1 = cipherForStrings("cat", "dog");
+	assert(p1?.length === 3);
+	assert((p1 && p1[0]) === "c->d");
+	assert((p1 && p1[1]) === "a->o");
+	assert((p1 && p1[2]) === "t->g");
+
+	const p2 = cipherForStrings("cat", "gag");
+	assert(p2 === null);
+
+	const p3 = cipherForStrings("gag", "cat");
+	assert(p3 === null);
+}
+{
+	const q1 = cipherForLangs("cat", "dog", ZonaiLang, RomajiLang);
+	assert(q1 === null);
+
+	const q2 = cipherForLangs("CSTC", "tokt", ZonaiLang, RomajiLang);
+	assert(q2 !== null, "cipher must exist");
+	assert(q2?.includes("C->t"));
+	assert(q2?.includes("S->o"));
+	assert(q2?.includes("T->k"));
+	assert(q2?.length === 3);
+
+	const q3 = cipherForLangs("C.B", "t.k", ZonaiLang, RomajiLang);
+	assert(q3 !== null);
+
+
+	const q4 = cipherForLangs("C.B", "t1k", ZonaiLang, RomajiLang);
+	assert(q4 === null);
+}
+
+{
+	const solver = new logic.Solver();
+	solver.require("true");
+	solver.require(logic.or("Q", "!Q"));
+
+	const formulas = ["Q"];
+	const weights = [5431];
+	for (let i = 0; i < 5432; i++) {
+		formulas.push("true");
+		weights.push(1);
+	}
+
+	console.log({ formulas });
+
+	const badSolution = solver.solveAssuming("Q");
+	const answer = solver.minimizeWeightedSum(badSolution, formulas, weights);
+	console.log(answer);
+	console.log(answer.getTrueVars());
+	console.log(answer.getWeightedSum(formulas, weights));
+
+	// throw new Error("STOP");
+}
+
+function sectionOptimization() {
+	const section = document.getElementById("optimization");
+	if (!(section instanceof HTMLElement)) {
+		throw new Error("missing optimization section");
+	}
+
+	const inputx = document.getElementById("optimization-input");
+	if (!(inputx instanceof HTMLTextAreaElement)) {
+		throw new Error("missing optimization-input");
+	}
+	const input = inputx;
+
+	const outputx = document.getElementById("optimization-output");
+	if (!(outputx instanceof HTMLTextAreaElement)) {
+		throw new Error("missing optimization-output");
+	}
+	const output = outputx;
+
+	const penaltiesx = document.getElementById("optimization-penalties");
+	if (!(penaltiesx instanceof HTMLTextAreaElement)) {
+		throw new Error("missing optimization-penalties");
+	}
+	const penalties = penaltiesx;
+
+	const search = document.getElementById("optimization-search");
+	if (!(search instanceof HTMLButtonElement)) {
+		throw new Error("missing optimization-search");
+	}
+
+
+	function optimize() {
+		const solver = new logic.Solver();
+		for (const zonaiLetter of ZonaiLang.alphabet) {
+			const mapsTo = RomajiLang.alphabet.split("").map(romajiLetter => `${zonaiLetter}->${romajiLetter}`);
+			solver.require(logic.exactlyOne(...mapsTo));
+		}
+		for (const romajiLetter of RomajiLang.alphabet) {
+			const mapsFrom = ZonaiLang.alphabet.split("").map(zonaiLetter => `${zonaiLetter}->${romajiLetter}`);
+			solver.require(logic.exactlyOne(...mapsFrom));
+		}
+
+		const lines = input.value.split("\n").map(x => x.trim()).filter(x => x).map(x => "^" + x + "$");
+		const corpus = lines.join("");
+
+		const t0 = performance.now();
+		const penaltyFormulas = [];
+		for (const bad of penalties.value.trim().split(/\s+/g)) {
+			for (let i = 0; i + bad.length <= corpus.length; i++) {
+				const slice = corpus.substring(i, i + bad.length);
+				const cipher = cipherForLangs(slice, bad, ZonaiLang, RomajiLang);
+				if (!cipher) {
+					continue;
+				}
+
+				penaltyFormulas.push(logic.and(...cipher));
+			}
+		}
+
+		const t1 = performance.now();
+		const basicSolution = solver.solve();
+		if (!basicSolution) {
+			throw new Error("unexpectedly has no solution");
+		}
+		const solution = solver.minimizeWeightedSum(basicSolution, penaltyFormulas, penaltyFormulas.map(x => 1));
+		console.log({ solution });
+		console.log(solution.getTrueVars());
+		/**
+		 * @type {Record<string, string>}
+		 */
+		const mapping = {};
+		for (const value of solution.getTrueVars()) {
+			if (value.includes("->")) {
+				const [k, v] = value.split("->");
+				mapping[k] = v;
+			}
+		}
+		let out = "";
+		for (const c of input.value) {
+			out += mapping[c] || c;
+		}
+
+		const score = solution.getWeightedSum(penaltyFormulas, penaltyFormulas.map(x => 1));
+		output.value = out + "\n\n(penalty: " + score + ")";
+
+
+		const t2 = performance.now();
+
+		console.log("building formula:", t1 - t0);
+		console.log("solving:", t2 - t1);
+	}
+
+	optimize();
+	search.addEventListener("click", optimize);
+}
+
 {
 	/**
 	 * @type {Reading}
@@ -1088,9 +1306,6 @@ function sectionTryACipher() {
 			section.setAttribute("data-sample-mode", radio.value);
 		};
 	}
+
+	sectionOptimization();
 }
-
-import logic from "dependencies/logic-solver/logic-solver.mjs";
-
-const solver = new logic.Solver();
-console.log(solver);
