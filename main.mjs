@@ -1297,7 +1297,7 @@ function sectionOptimization() {
 		if (!(radio instanceof HTMLInputElement)) {
 			throw new Error("unexpected name='sample-mode' element");
 		}
-		if (getUrlParameter("samples") === radio.value) {
+		if (getUrlParameter("samples") === radio.value || (getUrlParameter("samples") === "" && radio.checked)) {
 			radio.checked = true;
 			section.setAttribute("data-sample-mode", radio.value);
 		}

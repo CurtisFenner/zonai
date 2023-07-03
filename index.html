@@ -99,31 +99,39 @@ several factors point to this script rather being a cipher for Japanese:
 </ul>
 </section>
 
-<section id="letter-frequency">
-	<h2>Letter Frequency</h2>
-	<p>Some of the "letters" appear much more than others:
+<section>
+	<details id="letter-frequency" open>
+		<summary>
+			<h2>Letter Frequency</h2>
+		</summary>
+		<p>Some of the "letters" appear much more than others:
+	</details>
 </section>
 
-<section id="bigram-frequency">
-	<h2>Bigram Frequency</h2>
-	<p>Some combinations of letters appear much more frequently.
-	<p>There is not a clear resemblance to romaji's bigram frequencies, but
-		because there is so little sample data, and it likely contains many
-		transcription errors or oddities, it is hard to compare.
-	<p>A less plausible explanation may be that the text is not an alphabet,
-		but an <a href="https://en.wikipedia.org/wiki/Abjad">abjad</a>; there
-		are also 14 consonants in Japanese: 
-		(K, G; S, Z; T, D; H, B, P; R, M, N, Y, W).<br>
-		However, this would be nearly unreadable, so I don't suspect this is
-		the case. Many grammatical functions are indicated solely using vowels,
-		which makes this a terribly unclear way to write Japanese.<br>
-	<p>I <em>do</em> think that some of the text in the game is nonsense; in
-		particular, the stone tablets in the Ring Ruins should be a trove of
-		Zonai text, since each tablet contains 54 letters.
-	<p>However, the letter distribution in them is as-uniform-as-possible, which
-		makes me think they are random rather than actual text. It's possible
-		that other garbage samples exist in the game, but since many of them
-		are so short, it is hard to separate them.
+<section>
+	<details id="bigram-frequency" open>
+		<summary>
+			<h2>Bigram Frequency</h2>
+		</summary>
+		<p>Some combinations of letters appear much more frequently.
+		<p>There is not a clear resemblance to romaji's bigram frequencies, but
+			because there is so little sample data, and it likely contains many
+			transcription errors or oddities, it is hard to compare.
+		<p>A less plausible explanation may be that the text is not an alphabet,
+			but an <a href="https://en.wikipedia.org/wiki/Abjad">abjad</a>; there
+			are also 14 consonants in Japanese: 
+			(K, G; S, Z; T, D; H, B, P; R, M, N, Y, W).<br>
+			However, this would be nearly unreadable, so I don't suspect this is
+			the case. Many grammatical functions are indicated solely using vowels,
+			which makes this a terribly unclear way to write Japanese.<br>
+		<p>I <em>do</em> think that some of the text in the game is nonsense; in
+			particular, the stone tablets in the Ring Ruins should be a trove of
+			Zonai text, since each tablet contains 54 letters.
+		<p>However, the letter distribution in them is as-uniform-as-possible, which
+			makes me think they are random rather than actual text. It's possible
+			that other garbage samples exist in the game, but since many of them
+			are so short, it is hard to separate them.
+	</details>
 </section>
 
 <section id="trigram-frequency" style="display: none">
@@ -131,12 +139,16 @@ several factors point to this script rather being a cipher for Japanese:
 	<p>Certain "phrases" are repeated between many different texts.
 </section>
 
-<section id="word-starts">
-	<h2>Word Starts</h2>
-	<p>Due to the relatively rigid structure of Japanese syllables, certain
-		letters are much more likely to begin a sentence or phrase.
-	<p>This may be a useful starting point for identifying vowels and
-		consonants.
+<section>
+	<details id="word-starts">
+		<summary>
+			<h2>Word Starts</h2>
+		</summary>
+		<p>Due to the relatively rigid structure of Japanese syllables, certain
+			letters are much more likely to begin a sentence or phrase.
+		<p>This may be a useful starting point for identifying vowels and
+			consonants.
+	</details>
 </section>
 
 <section id="try-a-cipher" style="
@@ -154,19 +166,23 @@ box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.125);
 	<h2 style="font-size: 80%; margin-top: 0;">Try a cipher</h2>
 </section>
 
-<section id="text-samples">
-	<h2>Text Samples</h2>
+<section>
+	<details id="text-samples" open class="mode-presented">
+		<summary>
+			<h2>Text Samples</h2>
+		</summary>
 
-	<p>You can find the raw source of the text files for this page at
-	<a href="samples.txt">samples.txt</a>.
+		<p>You can find the raw source of the text files for this page at
+		<a href="samples.txt">samples.txt</a>.
 
-	<p>You can contribute <a href="https://github.com/CurtisFenner/zonai/blob/main/samples.txt">to the GitHub repository here</a>.
+		<p>You can contribute <a href="https://github.com/CurtisFenner/zonai/blob/main/samples.txt">to the GitHub repository here</a>.
 
-	<fieldset>
-		<label><input type="radio" name="sample-mode" value="presented"> Show samples as they appear in the game</label><br>
-		<label><input type="radio" name="sample-mode" value="linear"> Show samples as they should be read (top to bottom, right to left)</label><br>
-		<label><input type="radio" name="sample-mode" value=""> Show both</label>
-	</fieldset>
+		<fieldset>
+			<label><input type="radio" name="sample-mode" checked value="presented"> Show samples as they appear in the game</label><br>
+			<label><input type="radio" name="sample-mode" value="linear"> Show samples as they should be read (top to bottom, right to left)</label><br>
+			<label><input type="radio" name="sample-mode" value="both"> Show both</label>
+		</fieldset>
+	</details>
 </section>
 
 <section id="optimization" style="display: none">

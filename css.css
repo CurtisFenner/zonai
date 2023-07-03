@@ -18,8 +18,6 @@ section {
 	background: rgba(255, 255, 255, 0.9);
 	box-shadow: 1px 10px 20px 5px rgba(0, 0, 0, 0.0525);
 	border-radius: 2px;
-	padding-right: 2em;
-	margin-right: -2em;
 }
 
 section::after {
@@ -31,8 +29,15 @@ section::after {
 	width: 14px;
 	content: " ";
 	background-image: url('patch.png');
-	opacity: 0.125;
+	opacity: 0.0625;
 }
+
+details h1,
+details h2,
+details h3 {
+	display: inline-block;
+}
+
 
 table {
 	margin: 1em 0;
