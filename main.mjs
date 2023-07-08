@@ -99,19 +99,30 @@ class ZonaiSample {
 /**
  * @param {ZonaiSample[]} samples
  * @param {Reading} reading
+ * @param {boolean} simplification
  */
-function readZonaiCorpus(samples, reading) {
+function readZonaiCorpus(samples, reading, simplification) {
 	const sentences = [];
 	for (const sample of samples.filter(x => !x.rejected)) {
 		if (sample.isCircular()) {
 			if (sample.attributes.includes("read-in-columns")) {
 				sentences.push(...sample.readColumns(reading.defaultColumns));
 			} else {
-				sentences.push(...sample.readRingsAsRows(reading.defaultRings, 1));
+				if (sample.attributes.includes("read-clockwise")) {
+					sentences.push(...sample.readRingsAsRows("left-to-right", 1));
+				} else if (sample.attributes.includes("read-counterclockwise")) {
+					sentences.push(...sample.readRingsAsRows("right-to-left", 1));
+				} else {
+					sentences.push(...sample.readRingsAsRows(reading.defaultRings, 1));
+				}
 			}
 		} else {
 			sentences.push(...sample.readColumns(reading.defaultColumns));
 		}
+	}
+
+	if (simplification) {
+		return Object.keys(reduceDuplication(sentences.map(x => x.replace(/\A+/g, " ").trim())));
 	}
 	return sentences;
 }
@@ -251,7 +262,7 @@ function renderZonaiSample(sample, reading) {
 		table.style.setProperty("--border-color", "transparent");
 	}
 
-	const linearized = readZonaiCorpus([sample], reading);
+	const linearized = readZonaiCorpus([sample], reading, false);
 	const asLinear = el("div", linearized.map(x => x.trim()).filter(x => x).map(x => el("div", elCipherLetter(x))));
 
 	asPresented.classList.add("mode-presented");
@@ -265,7 +276,7 @@ function renderZonaiSample(sample, reading) {
  * @param {Reading} reading 
  */
 async function sectionTextSamples(zonaiSamples, reading) {
-	const linear = readZonaiCorpus(zonaiSamples, reading);
+	const linear = readZonaiCorpus(zonaiSamples, reading, false);
 	const unigrams = ngrams(linear.join("|"), 1);
 	const uniform = uniformDistribution(ZonaiLang.alphabet);
 
@@ -275,7 +286,7 @@ async function sectionTextSamples(zonaiSamples, reading) {
 	function completeRenderSample(sample) {
 		const div = renderZonaiSample(sample, reading);
 
-		const sampleLinear = readZonaiCorpus([sample], reading).join("|");
+		const sampleLinear = readZonaiCorpus([sample], reading, false).join("|");
 		const relative = relativeUnigramLikelihood(sampleLinear, uniform, unigrams);
 
 		if (relative > 10) {
@@ -625,7 +636,7 @@ function sectionLetterFrequency(zonaiSamples, processedRomaji) {
 		throw new Error("missing letter-frequency");
 	}
 
-	const zonaiCorpus = readZonaiCorpus(zonaiSamples, { defaultColumns: "right-to-left", defaultRings: "right-to-left" }).join("  ");
+	const zonaiCorpus = readZonaiCorpus(zonaiSamples, { defaultColumns: "right-to-left", defaultRings: "right-to-left" }, true).join("  ");
 	const zonaiUnigrams = ngrams(zonaiCorpus, 1);
 	const japaneseUnigrams = ngrams(processedRomaji, 1);
 
@@ -724,7 +735,7 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 	const section = document.getElementById("bigram-frequency");
 	if (!section) throw new Error("missing bigram-frequency section");
 
-	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading);
+	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading, true);
 
 	/**
 	 * @param {string} text
@@ -803,15 +814,7 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 			el("p", "Below is the text, read as columns, right-to-left, for all of the samples."),
 			el(
 				"blockquote",
-				zonaiSamples.map((sample, sampleIndex) => {
-					const lines = readZonaiCorpus([sample], reading)
-					return [
-						sampleIndex === 0 ? [] : el("hr"),
-						el("span", toLetterBoxes(lines.join(" - ")), { class: "zonai" }),
-						el("br"),
-						el("small", sample.title, { style: { opacity: 0.75 } }),
-					];
-				}),
+				zonaiCorpus.map(line => el("p", el("span", line, { class: "zonai" }))),
 			)
 		])
 	);
@@ -829,7 +832,7 @@ function sectionTrigramFrequency(zonaiSamples, reading, processedRomaji) {
 		throw new Error("missing trigram-frequency section");
 	}
 
-	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading);
+	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading, true);
 	const zonaiTrigrams = ngrams(zonaiCorpus.join("|"), 3);
 	const japaneseTrigrams = ngrams(processedRomaji, 3);
 
@@ -1013,7 +1016,7 @@ function sectionWordStarts(zonaiSamples, romajiCorpus, reading) {
 
 	const count = 3;
 	const romajiFrequenciesByPosition = frequencyByPosition(romajiCorpus.split(/[^a-z]+/g), RomajiLang, count)
-	const zonaiFrequenciesByPosition = frequencyByPosition(readZonaiCorpus(zonaiSamples, reading), ZonaiLang, count);
+	const zonaiFrequenciesByPosition = frequencyByPosition(readZonaiCorpus(zonaiSamples, reading, true), ZonaiLang, count);
 
 	const section = document.getElementById("word-starts");
 	if (!section) throw new Error("missing word-starts");
@@ -1163,11 +1166,8 @@ function assert(tru, msg) {
 		weights.push(1);
 	}
 
-	console.log({ formulas });
-
 	const badSolution = solver.solveAssuming("Q");
 	const answer = solver.minimizeWeightedSum(badSolution, formulas, weights);
-	console.log(answer);
 	console.log(answer.getTrueVars());
 	console.log(answer.getWeightedSum(formulas, weights));
 
@@ -1238,7 +1238,6 @@ function sectionOptimization() {
 			throw new Error("unexpectedly has no solution");
 		}
 		const solution = solver.minimizeWeightedSum(basicSolution, penaltyFormulas, penaltyFormulas.map(x => 1));
-		console.log({ solution });
 		console.log(solution.getTrueVars());
 		/**
 		 * @type {Record<string, string>}
@@ -1267,6 +1266,30 @@ function sectionOptimization() {
 
 	optimize();
 	search.addEventListener("click", optimize);
+}
+
+/**
+ * @param {string[]} corpus
+ */
+function reduceDuplication(corpus) {
+	/**
+	 * @type {Record<string, string[]>}
+	 */
+	let nonContained = {};
+	for (const line of corpus.sort((a, b) => b.length - a.length)) {
+		let contained = false;
+		for (const possibleContainer in nonContained) {
+			if (possibleContainer.repeat(3).includes(line)) {
+				contained = true;
+				nonContained[possibleContainer].push(line);
+				break;
+			}
+		}
+		if (!contained) {
+			nonContained[line] = [];
+		}
+	}
+	return nonContained;
 }
 
 {

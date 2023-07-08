@@ -258,8 +258,9 @@ Y
 
 # shrines/gear
 rings
+read-in-columns
 S   H   S   H
-W J J W W J J W
+W J J W W J J W 
   L   Y   L   Y
   S   H   S   H
 // a strange arrangement of "HJLSW"?
@@ -276,6 +277,7 @@ W J J W W J J W
 
 # shrines/portal
 ring
+read-clockwise
 HNJBSLMUWCHNJBSLMUWCDRTY
 
 # shrines/dragon
@@ -307,6 +309,7 @@ MLSBNTMLSBNT
 
 # shrines/ball
 ring
+read-clockwise
 TYHYHNJBSLMUWCDR
 
 # shrines/ceiling-hint
@@ -355,6 +358,13 @@ U
 S
 W
 Y
+
+# devices/time-bomb
+D
+B
+S
+L
+M
 
 # devices/shock
 S
@@ -445,9 +455,13 @@ S
 L
 M
 
-# devices/cannon
+# devices/cannon/side
 S
 J
+L
+S
+
+# devices/cannon/inside
 L
 S
 
@@ -479,6 +493,11 @@ U
 
 # devices/control-stick
 H
+J
+L
+S
+
+# devices/stabilizer
 J
 L
 S
@@ -517,6 +536,14 @@ H
 D
 C
 J
+N
+
+# memories/betrayal
+D
+R
+N
+M
+U
 N
 
 # memories/ganon/round-stone
@@ -803,7 +830,7 @@ D   D
 W   C
 // The left side is broken
 
-# labrynth/stone
+# labrynth/north/ground-stone
 BUJ
 ULU
 HDB
@@ -811,3 +838,50 @@ DHS
 NWL
 CLM
 
+# forgotten-temple/ground-or-pillar
+D
+R
+N
+M
+U
+N
+
+# zonai/countdown
+ring
+//5+3246978+
+..LCSNHMJBUW........
+// It vanishes from the left ("L") side,
+// with "W" being the last symbol to remain.
+// alphabetical order:
+// aehikmnorstuwy
+// 50 sounds order:
+// a(eiou?)kstnhmyrw
+
+# mines/target-south/4720/-3786/-0557
+Y
+H
+U
+N
+D
+
+# kakariko-research/analyzed-text
+M N D S
+U  J R L
+W B Y M
+  S T U
+  H W
+// there are some details circled about some of the letters,
+// but I think it's probably just decorative
+
+# kakariko-research/tablet-notes
+BN
+MS
+TL
+WD
+RH
+CY
+UJ
+
+# kakariko-research/ring-ruin-drawing
+HTUY
+?BCN
