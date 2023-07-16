@@ -29,59 +29,72 @@ Zonai script is written using only 14 symbols:
 	B C D H J L M N R S T U W Y
 </p>
 
-The game uses a handful of other
+<p>The text is usually written in vertical columns, but is sometimes written in
+rings. Less commonly, it is written in rows (often in rings wrapping around a
+column or ball).
+
+<p>I suspect that circular text is not written in a consistent direction, and I
+	have annotated each sample with the direction I think it might be read in.
+<details class="section-box" style="padding: 1em">
+	<summary>Analysis of Circular Writing Direction</summary>
+	For example, consider the circular writing on the back of the Zonai stake:
+
+	<div class="display-zonai" data-display-zonai-title="devices/stake/back"></div>
+
+	<p>If you read it clockwise, you get <span class=zonai>HSLJ</span>.
+	<p>If you read it counter-clockwise, you get <span class=zonai>HJLS</span>.
+
+	<p>Now consider some of the other zonai devices:
+
+	<div style="display: flex; flex-direction: row;">
+		<div class="display-zonai" data-display-zonai-title="devices/sled"></div>
+		<div class="display-zonai" data-display-zonai-title="devices/flame"></div>
+		<div class="display-zonai" data-display-zonai-title="devices/hydrant"></div>
+		<div class="display-zonai" data-display-zonai-title="devices/tank"></div>
+	</div>
+
+	<p>These all have the same string <span class=zonai>HJL(S)</span>, which matches
+		the <strong>counter-clockwise</strong> reading.
+
+	<p>However, other circular writing, like that in the portals in front of
+		shrines, appears to be the opposite:
+
+	<div class="display-zonai" data-display-zonai-title="shrines/portal"></div>
+
+	<p>Read clockwise, it almost matches the vertical text found in the pillars
+		surrounding the inner chamber within a shrine of light
+		(<span class=zonai>HNJBSLM...</span> vs <span class=zonai>HNDBSLM</span>):
+
+	<div class="display-zonai" data-display-zonai-title="shrines/inner-chamber-pillar"></div>
+</details>
+
+<p>The text has a visual similarity to CJK logographs, especially
+<a href="https://en.wikipedia.org/wiki/Oracle_bone_script">
+	oracle bone script / small seal script.
+</a>.
+
+<table style="text-align: center">
+	<tr><th>Zonai<th>Small Seal Script<th>Modern
+	<tr>
+		<td class=zonai>W
+		<td><img style="height: 1.5em; margin: -0.25em;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/%E7%AC%91-seal.svg/60px-%E7%AC%91-seal.svg.png">
+		<td>笑
+	<tr>
+		<td class=zonai>M
+		<td><img style="height: 1.5em; margin: -0.25em;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/%E4%BA%AC-seal.svg/60px-%E4%BA%AC-seal.svg.png">
+		<td>京
+</table>
+
+<p>The game uses a handful of other
 symbols in the Zonai "language", such as those associated with the summonable
 champions, but they don't appear in larger passages. These are explicitly
 Japanese kanji. For example, the Yunobo summon symbol is a variant of "炎",
 meaning "flames".
 
-<p>The text is usually written in vertical columns, but is sometimes written in
-rings. Less commonly, it is written in rows (often in rings wrapping around a
-column or ball).
-
-<p>I suspect that circular text is usually read counter-clockwise. For example,
-	consider the circular writing on the back of the Zonai stake:
-
-<div class="display-zonai" data-display-zonai-title="devices/stake/back"></div>
-
-<p>If you read it clockwise, you get <span class=zonai>HSLJ</span>.
-<p>If you read it counter-clockwise, you get <span class=zonai>HJLS</span>.
-
-<p>Now consider some of the other zonai devices:
-
-<div style="display: flex; flex-direction: row;">
-	<div class="display-zonai" data-display-zonai-title="devices/sled"></div>
-	<div class="display-zonai" data-display-zonai-title="devices/flame"></div>
-	<div class="display-zonai" data-display-zonai-title="devices/hydrant"></div>
-	<div class="display-zonai" data-display-zonai-title="devices/tank"></div>
-</div>
-
-<p>These all have the same string <span class=zonai>HJL(S)</span>, which matches
-	the <strong>counter-clockwise</strong> reading.
-
-<ul>
-	<li>The stake has a small bit of circular writing on it.
-	<li>Read clockwise, it would be <span class=zonai>HSLJ</span>.
-	<li>Read counter-clockwise, it would be <span class=zonai>HJLS</span>.
-	<li>Both the flame emitter and the sled have the same string
-		<span class=zonai>HJL(SY)</span>, which is why I suspect the
-		counter-clockwise reading.
-</ul>
-
-<p>The text has a visual similarity to CJK logographs, especially
-<a href="https://en.wikipedia.org/wiki/Oracle_bone_script">
-	oracle bone script
-</a>. As mentioned above, a handful of other symbols like those associated with
-the champions are very clearly derivatives of Japanese kanji.
-
-<table>
-	<tr><td class=zonai>W<td>笑
-	<tr><td class=zonai>M<td>京
-</table>
-
 <p>Previous installments in the Zelda franchise have created Hylian scripts
 which were simple ciphers for English or Japanese text. Recent games (including
-<i>Breath of the Wild</i>'s Sheikah script) have been English ciphers, but
+<i>Breath of the Wild</i>'s Sheikah script) have been English ciphers (although
+some text was written in romanized Japanese using the English alphabet), but
 several factors point to this script rather being a cipher for Japanese:
 
 <ul>

@@ -100,31 +100,47 @@ class ZonaiSample {
  * @param {ZonaiSample[]} samples
  * @param {Reading} reading
  * @param {boolean} simplification
+ * @return {{line: string, sources: string[]}[]}
  */
 function readZonaiCorpus(samples, reading, simplification) {
 	const sentences = [];
 	for (const sample of samples.filter(x => !x.rejected)) {
+		let x;
 		if (sample.isCircular()) {
 			if (sample.attributes.includes("read-in-columns")) {
-				sentences.push(...sample.readColumns(reading.defaultColumns));
+				x = sample.readColumns(reading.defaultColumns);
 			} else {
 				if (sample.attributes.includes("read-clockwise")) {
-					sentences.push(...sample.readRingsAsRows("left-to-right", 1));
+					x = sample.readRingsAsRows("left-to-right", 1);
 				} else if (sample.attributes.includes("read-counterclockwise")) {
-					sentences.push(...sample.readRingsAsRows("right-to-left", 1));
+					x = sample.readRingsAsRows("right-to-left", 1);
 				} else {
-					sentences.push(...sample.readRingsAsRows(reading.defaultRings, 1));
+					x = sample.readRingsAsRows(reading.defaultRings, 1);
 				}
 			}
 		} else {
-			sentences.push(...sample.readColumns(reading.defaultColumns));
+			x = sample.readColumns(reading.defaultColumns);
 		}
+
+		sentences.push(...x.map(line => ({
+			line,
+			source: sample.title,
+		})));
 	}
 
 	if (simplification) {
-		return Object.keys(reduceDuplication(sentences.map(x => x.replace(/\A+/g, " ").trim())));
+		const deduplicated = reduceDuplication(
+			sentences.map(x => ({
+				...x,
+				line: x.line.replace(/\A+/g, " ").trim(),
+			}))
+		);
+		return Object.entries(deduplicated).map(([k, v]) => ({
+			line: k,
+			sources: v,
+		}));
 	}
-	return sentences;
+	return sentences.map(s => ({ line: s.line, sources: [s.source] }));
 }
 
 /**
@@ -262,7 +278,7 @@ function renderZonaiSample(sample, reading) {
 		table.style.setProperty("--border-color", "transparent");
 	}
 
-	const linearized = readZonaiCorpus([sample], reading, false);
+	const linearized = readZonaiCorpus([sample], reading, false).map(x => x.line);
 	const asLinear = el("div", linearized.map(x => x.trim()).filter(x => x).map(x => el("div", elCipherLetter(x))));
 
 	asPresented.classList.add("mode-presented");
@@ -276,7 +292,7 @@ function renderZonaiSample(sample, reading) {
  * @param {Reading} reading 
  */
 async function sectionTextSamples(zonaiSamples, reading) {
-	const linear = readZonaiCorpus(zonaiSamples, reading, false);
+	const linear = readZonaiCorpus(zonaiSamples, reading, false).map(x => x.line);
 	const unigrams = ngrams(linear.join("|"), 1);
 	const uniform = uniformDistribution(ZonaiLang.alphabet);
 
@@ -286,7 +302,7 @@ async function sectionTextSamples(zonaiSamples, reading) {
 	function completeRenderSample(sample) {
 		const div = renderZonaiSample(sample, reading);
 
-		const sampleLinear = readZonaiCorpus([sample], reading, false).join("|");
+		const sampleLinear = readZonaiCorpus([sample], reading, false).map(x => x.line).join("|");
 		const relative = relativeUnigramLikelihood(sampleLinear, uniform, unigrams);
 
 		if (relative > 10) {
@@ -570,16 +586,68 @@ function tableTable(bigrams, letterOrder, makeTh = (text, side) => el("th", text
 }
 
 /**
+ * @template T
+ * @param {T[][]} lists
+ * @returns {Generator<T[]>}
+ */
+function* cartesianProduct(...lists) {
+	if (lists.length === 0) {
+		yield [];
+		return;
+	}
+	const [head, ...rest] = lists;
+	for (const element of head) {
+		for (const restProduct of cartesianProduct(...rest)) {
+			yield [element, ...restProduct];
+		}
+	}
+}
+
+/**
+ * @param {number[]} a
+ * @param {number[]} b
+ * @returns {number}
+ */
+function cosineSimilarity(a, b) {
+	if (a.length !== b.length) {
+		throw new Error("expected a.length === b.length");
+	}
+	let aSquareSum = 0;
+	let bSquareSum = 0;
+	let dot = 0;
+	for (let i = 0; i < a.length; i++) {
+		dot += a[i] * b[i];
+		aSquareSum += a[i] ** 2;
+		bSquareSum += b[i] ** 2;
+	}
+
+	return dot / Math.sqrt(aSquareSum * bSquareSum);
+}
+
+/**
  * @param text {string}
  * @param n {number}
+ * @param {{alphabet: string, add: number}} [smoothing]
  * @returns { {frequency: Record<string, number>, entries: {ngram: string, count: number}[], total: number} }
  */
-function ngrams(text, n) {
+function ngrams(text, n, smoothing = { alphabet: "", add: 0 }) {
 	let total = 0;
+
 	/**
 	 * @type {Record<string, number>}
-	 */
+	*/
 	const frequency = {};
+	if (smoothing.add !== 0) {
+		const alphabets = [];
+		for (let i = 0; i < n; i++) {
+			alphabets.push(smoothing.alphabet.split(""));
+		}
+		for (const smoothNgram of cartesianProduct(...alphabets)) {
+			frequency[smoothNgram.join("")] = smoothing.add;
+			total += smoothing.add;
+		}
+	}
+
 	const dense = text.replace(/[^a-zA-Z|]/g, "");
 	for (let i = 0; i + n < dense.length; i++) {
 		const s = dense.substring(i, i + n);
@@ -636,7 +704,9 @@ function sectionLetterFrequency(zonaiSamples, processedRomaji) {
 		throw new Error("missing letter-frequency");
 	}
 
-	const zonaiCorpus = readZonaiCorpus(zonaiSamples, { defaultColumns: "right-to-left", defaultRings: "right-to-left" }, true).join("  ");
+	const zonaiCorpus = readZonaiCorpus(zonaiSamples, { defaultColumns: "right-to-left", defaultRings: "right-to-left" }, true)
+		.map(x => x.line)
+		.join("  ");
 	const zonaiUnigrams = ngrams(zonaiCorpus, 1);
 	const japaneseUnigrams = ngrams(processedRomaji, 1);
 
@@ -727,6 +797,67 @@ function sum(seq) {
 }
 
 /**
+ * @param {string} corpus 
+ * @param {Lang} lang 
+ */
+function conditioningTwoGrams(corpus, lang, add = 1) {
+	const bigrams = ngrams(corpus, 2, { alphabet: lang.alphabet, add });
+	/**
+	 * @type {Record<string, number[]>}
+	 */
+	const neighborMatrix = {};
+	for (const letter of lang.alphabet) {
+		const preceding = bigrams.entries.filter(x => x.ngram[1] === letter);
+		const following = bigrams.entries.filter(x => x.ngram[0] === letter);
+		console.log(letter);
+		const precedingTotal = sum(preceding.map(x => x.count));
+		const followingTotal = sum(following.map(x => x.count));
+		console.log("preceding " + letter + ":");
+		for (const x of preceding) {
+			if (x.count - 1 >= precedingTotal / 14 * 1.5) {
+				console.log("\t" + x.ngram + "\t" + (100 * x.count / precedingTotal).toFixed(0) + "%");
+			}
+		}
+		console.log("following " + letter + ":");
+		for (const x of following) {
+			if (x.count - 1 >= followingTotal / 14 * 1.5) {
+				console.log("\t" + x.ngram + "\t" + (100 * x.count / followingTotal).toFixed(0) + "%");
+			}
+		}
+
+		// Combine neighbors (due to me still being unclear about writing direction oddities)
+		const vector = [];
+		for (const neighbor of lang.alphabet) {
+			const beforeCount = preceding.find(x => x.ngram === neighbor + letter)?.count;
+			const afterCount = following.find(x => x.ngram === letter + neighbor)?.count;
+			if (!afterCount || !beforeCount) {
+				throw new Error("expected entries to be dense because of add-one-smoothing");
+			}
+			vector.push(beforeCount + afterCount);
+		}
+		neighborMatrix[letter] = vector;
+	}
+	console.log(neighborMatrix);
+	let s = "";
+
+	s += "\t" + lang.alphabet.split("").map(s => s + "\t").join("") + "\n";
+	for (const a of lang.alphabet) {
+		s += a + "\t";
+		for (const b of lang.alphabet) {
+			const va = neighborMatrix[a];
+			const vb = neighborMatrix[b];
+			const similarity = cosineSimilarity(va, vb);
+			s += similarity.toFixed(2) + "\t";
+		}
+		s += a;
+		s += "\n";
+	}
+	console.log(lang);
+	console.log(s);
+	console.log("^^^");
+}
+
+/**
  * @param {Reading} reading
  * @param {ZonaiSample[]} zonaiSamples
  * @param {string} processedRomaji 
@@ -736,6 +867,9 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 	if (!section) throw new Error("missing bigram-frequency section");
 
 	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading, true);
+
+	conditioningTwoGrams(zonaiCorpus.map(x => x.line).join("|"), ZonaiLang);
+	conditioningTwoGrams(processedRomaji, RomajiLang);
 
 	/**
 	 * @param {string} text
@@ -762,7 +896,7 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 		});
 	};
 
-	const zonaiTable = makeBigramTable(zonaiCorpus.join("|"), zonaiTh);
+	const zonaiTable = makeBigramTable(zonaiCorpus.map(x => x.line).join("|"), zonaiTh);
 	const romajiTable = makeBigramTable(processedRomaji, jTh);
 
 	const sideBySide = el("div",
@@ -779,44 +913,26 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 	);
 	section.appendChild(sideBySide);
 
-	/**
-	 * @param {string} s 
-	 */
-	function toLetterBox(s) {
-		return el("span", s, {
-			style: {
-				width: "1.7em",
-				"text-align": "center",
-				display: "inline",
-				"letter-spacing": "0.25em",
-			},
-		});
-	}
-
-	/**
-	 * @param {string} s
-	 */
-	function toLetterBoxes(s) {
-		const out = [];
-		for (const c of s) {
-			if ("A" <= c && c <= "Z") {
-				out.push(toLetterBox(c));
-			} else {
-				out.push(c);
-			}
-		}
-		return out;
-	}
 	section.appendChild(el("br"));
 	section.appendChild(
 		el("details", [
 			el("summary", "Zonai corpus for ngrams"),
-			el("p", "Below is the text, read as columns, right-to-left, for all of the samples."),
+			el("p", "Below is the text read as columns / around rings appropriately. Duplicates have been merged."),
 			el(
 				"blockquote",
-				zonaiCorpus.map(line => el("p", el("span", line, { class: "zonai" }))),
+				zonaiCorpus.map(line => {
+					const trim = line.line.replace(/[^A-Z]+/g, " ").trim().replace(/[^A-Z]+/g, "-");
+					return [
+						el("p", elCipherLetter(trim), { style: { "margin-bottom": 0 } }),
+						el(
+							"ul",
+							line.sources.map(source => el("li", source, { class: "inline" })),
+							{ class: "label", style: { "margin-top": "0", "font-size": "1em" } },
+						),
+					];
+				}),
 			)
-		])
+		], { "class": "section-box", style: { "text-align": "left" } })
 	);
 	section.appendChild(el("p"));
 }
@@ -833,7 +949,7 @@ function sectionTrigramFrequency(zonaiSamples, reading, processedRomaji) {
 	}
 
 	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading, true);
-	const zonaiTrigrams = ngrams(zonaiCorpus.join("|"), 3);
+	const zonaiTrigrams = ngrams(zonaiCorpus.map(x => x.line).join("|"), 3);
 	const japaneseTrigrams = ngrams(processedRomaji, 3);
 
 	zonaiTrigrams.entries.splice(15);
@@ -1016,7 +1132,7 @@ function sectionWordStarts(zonaiSamples, romajiCorpus, reading) {
 
 	const count = 3;
 	const romajiFrequenciesByPosition = frequencyByPosition(romajiCorpus.split(/[^a-z]+/g), RomajiLang, count)
-	const zonaiFrequenciesByPosition = frequencyByPosition(readZonaiCorpus(zonaiSamples, reading, true), ZonaiLang, count);
+	const zonaiFrequenciesByPosition = frequencyByPosition(readZonaiCorpus(zonaiSamples, reading, true).map(x => x.line), ZonaiLang, count);
 
 	const section = document.getElementById("word-starts");
 	if (!section) throw new Error("missing word-starts");
@@ -1269,24 +1385,25 @@ function sectionOptimization() {
 }
 
 /**
- * @param {string[]} corpus
+ * @param {{line: string, source: string}[]} corpus
+ * @return {Record<string, string[]>}
  */
 function reduceDuplication(corpus) {
 	/**
 	 * @type {Record<string, string[]>}
 	 */
 	let nonContained = {};
-	for (const line of corpus.sort((a, b) => b.length - a.length)) {
+	for (const line of corpus.sort((a, b) => b.line.length - a.line.length)) {
 		let contained = false;
 		for (const possibleContainer in nonContained) {
-			if (possibleContainer.repeat(3).includes(line)) {
+			if (possibleContainer.repeat(3).includes(line.line)) {
 				contained = true;
-				nonContained[possibleContainer].push(line);
+				nonContained[possibleContainer].push(line.source);
 				break;
 			}
 		}
 		if (!contained) {
-			nonContained[line] = [];
+			nonContained[line.line] = [line.source];
 		}
 	}
 	return nonContained;

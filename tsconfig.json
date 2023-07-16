@@ -10,6 +10,7 @@
 		"target": "ES2017",
 		"module": "ES2022",
 		"strict": true,
+		"skipLibCheck": true
 	},
 	"exclude": [
 		"dependencies",

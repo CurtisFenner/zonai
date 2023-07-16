@@ -247,8 +247,7 @@ B
 S
 L
 M
-H
-N
+// repeats
 
 # shrines/locked-door
 L
@@ -866,7 +865,7 @@ D
 
 # kakariko-research/analyzed-text
 M N D S
-U  J R L
+U J R L
 W B Y M
   S T U
   H W
