@@ -102,7 +102,7 @@ class ZonaiSample {
  * @param {boolean} simplification
  * @return {{line: string, sources: string[]}[]}
  */
-function readZonaiCorpus(samples, reading, simplification) {
+function readZonaiCorpus(samples, reading, simplification, p = { minLength: 1 }) {
 	const sentences = [];
 	for (const sample of samples.filter(x => !x.rejected)) {
 		let x;
@@ -122,10 +122,15 @@ function readZonaiCorpus(samples, reading, simplification) {
 			x = sample.readColumns(reading.defaultColumns);
 		}
 
-		sentences.push(...x.map(line => ({
-			line,
-			source: sample.title,
-		})));
+
+		sentences.push(
+			...x
+				.filter(line => line.replace(/[^a-zA-Z]+/g, "").length >= p.minLength)
+				.map(line => ({
+					line,
+					source: sample.title,
+				}))
+		);
 	}
 
 	if (simplification) {
@@ -866,7 +871,7 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 	const section = document.getElementById("bigram-frequency");
 	if (!section) throw new Error("missing bigram-frequency section");
 
-	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading, true);
+	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading, true, { minLength: 3 });
 
 	conditioningTwoGrams(zonaiCorpus.map(x => x.line).join("|"), ZonaiLang);
 	conditioningTwoGrams(processedRomaji, RomajiLang);
