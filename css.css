@@ -151,11 +151,11 @@ td.zonai {
 
 li.inline {
 	display: inline-block;
-	padding-left: 1.5em;
+	padding-left: 2em;
 }
 
 li.inline::before {
-	padding-left: 1em;
+	padding-right: 0.5em;
 	content: "•";
 }
 

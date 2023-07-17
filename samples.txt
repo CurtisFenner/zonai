@@ -316,13 +316,25 @@ H
 J
 L
 
-# refinery/side
+# refinery/front-pillar
+D
+N
+B
+H
+S
+L
+M
+// a very different order from the typical HNDBSLM
+
+# refinery/crusher-sides
 N
 D
 B
 S
+
 S
 L
+
 
 # refinery/top-front
 S
@@ -340,6 +352,25 @@ T
 U
 R
 
+# refinery/pegs
+H
+J
+L
+S
+Y
+U
+
+# equipment/master-sword-fused
+H
+D
+N
+B
+S
+L
+U
+W
+C
+
 # equipment/zonaite-longsword
 U
 B
@@ -352,11 +383,23 @@ W H
 S U
 U L
 
-# equipment/mighty-zonaite-sword
+# equipment/mighty-zonaite-sword-???
 U
 S
 W
 Y
+
+# equipment/mighty-zonaite-sword
+ T
+ S
+ M
+N L
+R D
+
+# devices/water-globule
+ring
+...JHCNDNLUWMRB...
+// I can't read this well enough
 
 # devices/time-bomb
 D
@@ -396,6 +439,11 @@ L N U R
 R
 M
 N
+
+# devices/frost-emitter
+L
+S
+Y
 
 # ring-ruins/nestled
 excluded
@@ -561,6 +609,11 @@ N
 H
 J
 L
+
+# devices/beam-emitter
+J
+L
+S
 
 # devices/floating-block/1
     B
@@ -845,6 +898,59 @@ M
 U
 N
 
+# forgotten-temple/memory-door
+D L S
+B M S
+H B L
+N S H
+// visible in the memory where the sages receive the secret stones
+
+# forgotten-temple/door/bottom-left
+L
+N H D
+S D N
+D L B
+N S N
+D B M
+B L H
+L   S
+H   D
+    N
+
+# forgotten-temple/door/bottom-right
+S L H
+S N S
+L H H
+H B S
+  N L
+  D S
+  B B
+  L M
+  H
+
+# forgotten-temple/door/top-right
+D H S B L
+S N N M N
+M L L D M
+H D M N B
+S L N M S
+D B B L L
+    N   S
+    M   D
+
+# forgotten-temple/door/top-left
+H N H M L
+D S S L S
+N H B H N
+L S N M D
+N N L S N
+B M S B S
+N D   N
+M S   M
+// The "N" is flipped upside down on the 3 column from thel left
+// Like the temple of time, these are only using a
+// small subset of the alphabet...
+
 # zonai/countdown
 ring
 //5+3246978+
@@ -884,3 +990,86 @@ UJ
 # kakariko-research/ring-ruin-drawing
 HTUY
 ?BCN
+
+# zonaite-forge-island/door
+L
+S
+N
+R
+D
+H
+N
+L
+S
+N
+R
+D
+
+C
+S
+B
+C
+D
+M
+
+# construct-factory/robot-holder
+H
+N
+D
+B
+S
+L
+N
+D
+B
+S
+L
+M
+
+# construct-factory/map
+H H B
+N N S
+J J L
+B B M
+S   U
+L   W
+M D C
+U R D
+W C
+C
+// it is highly repetitive, so I only included each string once.
+
+# depths/ceiling-ascend-circle
+Y
+H
+U
+N
+D
+
+# depths/behind-chest
+S
+N
+J
+R
+Y
+// I have only found this in one place, normally it has the Zonai crest instead.
+// at the end of the length of water in the passageway in the southwest
+
+# water-temple/behind-faucet
+L
+M
+B
+S
+D
+H
+N
+// This is interesting!
+// It's the standard HNDBSLM but with chunks of letters flipped!
+
+# water-temple/pipe
+W
+Y
+M
+J
+C
+D
