@@ -169,29 +169,6 @@ function* subsetsOfSize(elements, size) {
 }
 
 /**
- * @template T
- * @param elements {T[]}
- * @param sizes {number[]}
- * @return {Generator<T[][]>}
- */
-function* partitionsIntoSizes(elements, sizes) {
-	if (sizes.length === 1) {
-		if (sizes[0] !== elements.length) {
-			throw new Error("sizes total != elements.length");
-		}
-		return yield [elements];
-	} else if (sizes.length === 0) {
-		throw new Error("must provide at least one size");
-	}
-
-	for (const split of subsetsOfSize(elements, sizes[0])) {
-		for (const remainder of partitionsIntoSizes(split.out, sizes.slice(1))) {
-			yield [split.in, ...remainder];
-		}
-	}
-}
-
-/**
  * @param {Lang} lang
  * @param {string[]} samples
  * @param {number} n 
@@ -298,7 +275,7 @@ function renderZonaiSample(sample, reading) {
  */
 async function sectionTextSamples(zonaiSamples, reading) {
 	const linear = readZonaiCorpus(zonaiSamples, reading, false).map(x => x.line);
-	const unigrams = ngrams(linear.join("|"), 1);
+	const unigrams = ngrams(linear.join("|"), 1, { alphabet: ZonaiLang.alphabet, add: 0 });
 	const uniform = uniformDistribution(ZonaiLang.alphabet);
 
 	/**
@@ -331,13 +308,19 @@ async function sectionTextSamples(zonaiSamples, reading) {
 			]));
 		}
 
-		return div;
+		return { div, sampleLinear };
 	}
 
 	const container = document.getElementById("text-samples");
 	if (!container) throw new Error("text-samples does not exist");
+	/**
+	 * @type {{div: HTMLElement, sampleLinear: string}[]}
+	 */
+	const renderedSamples = [];
 	for (const sample of zonaiSamples) {
-		container.appendChild(completeRenderSample(sample));
+		const rendered = completeRenderSample(sample);
+		renderedSamples.push(rendered);
+		container.appendChild(rendered.div);
 	}
 
 	for (const match of document.getElementsByClassName("display-zonai")) {
@@ -346,8 +329,24 @@ async function sectionTextSamples(zonaiSamples, reading) {
 		if (!sample) {
 			throw new Error("did not find any sample with title `" + title + "`");
 		}
-		match.appendChild(completeRenderSample(sample));
+		match.appendChild(completeRenderSample(sample).div);
 	}
+
+	const searchInput = document.getElementById("filter-input");
+	if (!(searchInput instanceof HTMLInputElement)) {
+		throw new Error("filter-input does not exist");
+	}
+	searchInput.oninput = () => {
+		const terms = searchInput.value.trim().toUpperCase().replace(/[^A-Z]+/g, " ").split(/\s+/g);
+		for (const sample of renderedSamples) {
+			const match = terms.every(term => sample.sampleLinear.includes(term));
+			if (match) {
+				sample.div.classList.remove("filter-hide");
+			} else {
+				sample.div.classList.add("filter-hide");
+			}
+		}
+	};
 }
 
 
@@ -609,40 +608,19 @@ function* cartesianProduct(...lists) {
 }
 
 /**
- * @param {number[]} a
- * @param {number[]} b
- * @returns {number}
- */
-function cosineSimilarity(a, b) {
-	if (a.length !== b.length) {
-		throw new Error("expected a.length === b.length");
-	}
-	let aSquareSum = 0;
-	let bSquareSum = 0;
-	let dot = 0;
-	for (let i = 0; i < a.length; i++) {
-		dot += a[i] * b[i];
-		aSquareSum += a[i] ** 2;
-		bSquareSum += b[i] ** 2;
-	}
-
-	return dot / Math.sqrt(aSquareSum * bSquareSum);
-}
-
-/**
  * @param text {string}
  * @param n {number}
- * @param {{alphabet: string, add: number}} [smoothing]
+ * @param {{alphabet: string, add: number}} smoothing
  * @returns { {frequency: Record<string, number>, entries: {ngram: string, count: number}[], total: number} }
  */
-function ngrams(text, n, smoothing = { alphabet: "", add: 0 }) {
+function ngrams(text, n, smoothing) {
 	let total = 0;
 
 	/**
 	 * @type {Record<string, number>}
 	*/
 	const frequency = {};
-	if (smoothing.add !== 0) {
+	if (smoothing.add) {
 		const alphabets = [];
 		for (let i = 0; i < n; i++) {
 			alphabets.push(smoothing.alphabet.split(""));
@@ -653,12 +631,19 @@ function ngrams(text, n, smoothing = { alphabet: "", add: 0 }) {
 		}
 	}
 
-	const dense = text.replace(/[^a-zA-Z|]/g, "");
-	for (let i = 0; i + n < dense.length; i++) {
+	const dense = text;
+	for (let i = 0; i + n <= dense.length; i++) {
 		const s = dense.substring(i, i + n);
-		if (s.indexOf("|") >= 0) {
-			continue;
+		if (smoothing.alphabet) {
+			if (new RegExp("[^" + smoothing.alphabet + "]").test(s)) {
+				continue;
+			}
+		} else {
+			if (s.indexOf("|") >= 0) {
+				continue;
+			}
 		}
+
 		frequency[s] = (frequency[s] || 0) + 1;
 		total += 1;
 	}
@@ -674,10 +659,11 @@ function ngrams(text, n, smoothing = { alphabet: "", add: 0 }) {
 /**
  * @param text {string}
  * @param {(text: string, side: "row" | "column") => ElArg} makeTh 
+ * @param {Lang} lang 
  */
-function makeBigramTable(text, makeTh) {
-	const unigrams = ngrams(text, 1);
-	const bigrams = ngrams(text, 2);
+function makeBigramTable(text, makeTh, lang) {
+	const unigrams = ngrams(text, 1, { alphabet: lang.alphabet, add: 0 });
+	const bigrams = ngrams(text, 2, { alphabet: lang.alphabet, add: 0 });
 
 	const letterOrder = unigrams.entries.map(({ ngram }) => ngram);
 
@@ -712,8 +698,8 @@ function sectionLetterFrequency(zonaiSamples, processedRomaji) {
 	const zonaiCorpus = readZonaiCorpus(zonaiSamples, { defaultColumns: "right-to-left", defaultRings: "right-to-left" }, true)
 		.map(x => x.line)
 		.join("  ");
-	const zonaiUnigrams = ngrams(zonaiCorpus, 1);
-	const japaneseUnigrams = ngrams(processedRomaji, 1);
+	const zonaiUnigrams = ngrams(zonaiCorpus, 1, { alphabet: ZonaiLang.alphabet, add: 0 });
+	const japaneseUnigrams = ngrams(processedRomaji, 1, { alphabet: RomajiLang.alphabet, add: 0 });
 
 	section.appendChild(
 		el("p", `The samples included in this page include ${zonaiUnigrams.total} Zonai letters total.`)
@@ -769,100 +755,6 @@ function sectionLetterFrequency(zonaiSamples, processedRomaji) {
 }
 
 /**
- * @template {string} K
- * @template V
- * @param {Record<K, V>} a
- * @param {Record<K, V>} b
- * @returns {Record<K, {left?: V, right?: V}>}
- */
-function zipMaps(a, b) {
-	/**
-	 * @type any
-	 */
-	const out = {};
-	for (const [k, v] of Object.entries(a)) {
-		out[k] = { left: v };
-	}
-	for (const [k, v] of Object.entries(b)) {
-		out[k] = out[k] || {};
-		out[k].right = v;
-	}
-	return out;
-}
-
-/**
- * @param {Iterable<number>} seq 
- */
-function sum(seq) {
-	let sum = 0;
-	for (const v of seq) {
-		sum += v;
-	}
-	return sum;
-}
-
-/**
- * @param {string} corpus 
- * @param {Lang} lang 
- */
-function conditioningTwoGrams(corpus, lang, add = 1) {
-	const bigrams = ngrams(corpus, 2, { alphabet: lang.alphabet, add });
-	/**
-	 * @type {Record<string, number[]>}
-	 */
-	const neighborMatrix = {};
-	for (const letter of lang.alphabet) {
-		const preceding = bigrams.entries.filter(x => x.ngram[1] === letter);
-		const following = bigrams.entries.filter(x => x.ngram[0] === letter);
-		console.log(letter);
-		const precedingTotal = sum(preceding.map(x => x.count));
-		const followingTotal = sum(following.map(x => x.count));
-		console.log("preceding " + letter + ":");
-		for (const x of preceding) {
-			if (x.count - 1 >= precedingTotal / 14 * 1.5) {
-				console.log("\t" + x.ngram + "\t" + (100 * x.count / precedingTotal).toFixed(0) + "%");
-			}
-		}
-		console.log("following " + letter + ":");
-		for (const x of following) {
-			if (x.count - 1 >= followingTotal / 14 * 1.5) {
-				console.log("\t" + x.ngram + "\t" + (100 * x.count / followingTotal).toFixed(0) + "%");
-			}
-		}
-
-		// Combine neighbors (due to me still being unclear about writing direction oddities)
-		const vector = [];
-		for (const neighbor of lang.alphabet) {
-			const beforeCount = preceding.find(x => x.ngram === neighbor + letter)?.count;
-			const afterCount = following.find(x => x.ngram === letter + neighbor)?.count;
-			if (!afterCount || !beforeCount) {
-				throw new Error("expected entries to be dense because of add-one-smoothing");
-			}
-			vector.push(beforeCount + afterCount);
-		}
-		neighborMatrix[letter] = vector;
-	}
-	console.log(neighborMatrix);
-	let s = "";
-
-	s += "\t" + lang.alphabet.split("").map(s => s + "\t").join("") + "\n";
-	for (const a of lang.alphabet) {
-		s += a + "\t";
-		for (const b of lang.alphabet) {
-			const va = neighborMatrix[a];
-			const vb = neighborMatrix[b];
-			const similarity = cosineSimilarity(va, vb);
-			s += similarity.toFixed(2) + "\t";
-		}
-		s += a;
-		s += "\n";
-	}
-	console.log(lang);
-	console.log(s);
-	console.log("^^^");
-}
-
-/**
  * @param {Reading} reading
  * @param {ZonaiSample[]} zonaiSamples
  * @param {string} processedRomaji 
@@ -872,9 +764,6 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 	if (!section) throw new Error("missing bigram-frequency section");
 
 	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading, true, { minLength: 3 });
-
-	conditioningTwoGrams(zonaiCorpus.map(x => x.line).join("|"), ZonaiLang);
-	conditioningTwoGrams(processedRomaji, RomajiLang);
 
 	/**
 	 * @param {string} text
@@ -901,8 +790,8 @@ function sectionBigramFrequency(zonaiSamples, reading, processedRomaji) {
 		});
 	};
 
-	const zonaiTable = makeBigramTable(zonaiCorpus.map(x => x.line).join("|"), zonaiTh);
-	const romajiTable = makeBigramTable(processedRomaji, jTh);
+	const zonaiTable = makeBigramTable(zonaiCorpus.map(x => x.line).join("|"), zonaiTh, ZonaiLang);
+	const romajiTable = makeBigramTable(processedRomaji, jTh, RomajiLang);
 
 	const sideBySide = el("div",
 		[zonaiTable, romajiTable],
@@ -954,8 +843,8 @@ function sectionTrigramFrequency(zonaiSamples, reading, processedRomaji) {
 	}
 
 	const zonaiCorpus = readZonaiCorpus(zonaiSamples, reading, true);
-	const zonaiTrigrams = ngrams(zonaiCorpus.map(x => x.line).join("|"), 3);
-	const japaneseTrigrams = ngrams(processedRomaji, 3);
+	const zonaiTrigrams = ngrams(zonaiCorpus.map(x => x.line).join("|"), 3, { alphabet: ZonaiLang.alphabet, add: 0 });
+	const japaneseTrigrams = ngrams(processedRomaji, 3, { alphabet: RomajiLang.alphabet, add: 0 });
 
 	zonaiTrigrams.entries.splice(15);
 	const zonaiTable = renderUnigramTable(zonaiTrigrams, {
@@ -1019,7 +908,6 @@ async function processRomajiSample() {
 
 	const wikipedia = await (await fetch("wikipedia-romaji.txt")).text();
 	const processedWikipedia = simplifyRomaji(wikipedia.normalize("NFKD").toLowerCase());
-	const wikipediaSentences = processedWikipedia.replace(/[^.aeiouksthrmnyw]/g, "").split(".");
 
 	const section = document.getElementById("romaji-sample-processed");
 	if (!section) {
@@ -1186,11 +1074,34 @@ function allUnique(list) {
 }
 
 /**
+ * @template T
+ * @template K
+ * @param {Iterable<T>} seq
+ * @param {(t: T) => K} f
+ * @return {Map<K, T[]>}
+ */
+function groupBy(seq, f) {
+	const out = new Map();
+	for (const x of seq) {
+		const key = f(x);
+		let group = out.get(key);
+		if (!group) {
+			group = [];
+			out.set(key, group);
+		}
+		group.push(x);
+	}
+	return out;
+}
+
+/**
  * @param {string} from
  * @param {string} to
+ * @return {string[] | null}
  */
 function cipherForStrings(from, to) {
 	if (from.length !== to.length) {
+		console.error("cipherForStrings", { from, to });
 		throw new Error("length mismatch");
 	}
 
@@ -1209,7 +1120,8 @@ function cipherForStrings(from, to) {
  * @param {string} from 
  * @param {string} to
  * @param {Lang} fromLang
- * @param {Lang} toLang   
+ * @param {Lang} toLang
+ * @return {null | string[]}
  */
 function cipherForLangs(from, to, fromLang, toLang) {
 	const cipher = cipherForStrings(from, to);
@@ -1230,7 +1142,14 @@ function cipherForLangs(from, to, fromLang, toLang) {
 		// No cipher is possible, because non-alphabet characters cannot be changed.
 		return null;
 	}
-	return letters.filter(x => x !== true);
+
+	const out = [];
+	for (const letter of letters) {
+		if (typeof letter === "string") {
+			out.push(letter);
+		}
+	}
+	return out;
 }
 
 /**
@@ -1289,104 +1208,159 @@ function assert(tru, msg) {
 
 	const badSolution = solver.solveAssuming("Q");
 	const answer = solver.minimizeWeightedSum(badSolution, formulas, weights);
-	console.log(answer.getTrueVars());
-	console.log(answer.getWeightedSum(formulas, weights));
 
 	// throw new Error("STOP");
 }
 
-function sectionOptimization() {
+/**
+ * @template T
+ * @param {T[]} list
+ * @return {void}
+ */
+function makeRandomSwap(list) {
+	const a = Math.floor(Math.random() * list.length);
+	const b = Math.floor(Math.random() * list.length);
+	[list[a], list[b]] = [list[b], list[a]];
+}
+
+/**
+ * @template T
+ * @param {T[]} list
+ * @param {number} n
+ * @return {T[]}
+ */
+function withRandomSwaps(list, n) {
+	const out = [...list];
+	for (let i = 0; i < n; i++) {
+		makeRandomSwap(out);
+	}
+	return out;
+}
+
+/**
+ * @param {string} text 
+ * @param {Record<string, number>} logLikelihoods 
+ * @param {number} n 
+ * @returns {number}
+ */
+function measureNgramLogLikelihood(text, logLikelihoods, n) {
+	let sum = 0;
+	for (let i = 0; i + n <= text.length; i++) {
+		const slice = text.substring(i, i + n);
+		if (slice in logLikelihoods) {
+			sum += logLikelihoods[slice];
+		}
+	}
+	return sum;
+}
+
+/**
+ * @typedef {{froms: string[], tos: string[]}} Substitution
+ */
+
+/**
+ * @param {string} from 
+ * @param {Substitution} substitution 
+ */
+function applySubstitution(from, substitution) {
+	let out = "";
+	for (const c of from) {
+		const i = substitution.froms.indexOf(c);
+		if (i < 0) {
+			out += "-";
+		} else {
+			out += substitution.tos[i];
+		}
+	}
+	return out;
+}
+
+/**
+ * @param {string} processedRomaji
+ */
+function sectionOptimization(processedRomaji) {
 	const section = document.getElementById("optimization");
 	if (!(section instanceof HTMLElement)) {
 		throw new Error("missing optimization section");
 	}
 
-	const inputx = document.getElementById("optimization-input");
-	if (!(inputx instanceof HTMLTextAreaElement)) {
-		throw new Error("missing optimization-input");
-	}
-	const input = inputx;
+	const bigrams = ngrams(processedRomaji, 2, {
+		alphabet: RomajiLang.alphabet,
+		add: 1,
+	});
 
-	const outputx = document.getElementById("optimization-output");
-	if (!(outputx instanceof HTMLTextAreaElement)) {
-		throw new Error("missing optimization-output");
-	}
-	const output = outputx;
+	const logLikelihoods = Object.fromEntries(
+		bigrams.entries.map(record => [record.ngram, Math.log(record.count / bigrams.total)])
+	);
 
-	const penaltiesx = document.getElementById("optimization-penalties");
-	if (!(penaltiesx instanceof HTMLTextAreaElement)) {
-		throw new Error("missing optimization-penalties");
-	}
-	const penalties = penaltiesx;
+	/**
+	 * @param {Substitution} substitution
+	 */
+	const evaluateSubstitution = substitution => {
+		const inTarget = applySubstitution(input, substitution);
+		return measureNgramLogLikelihood(inTarget, logLikelihoods, 2);
+	};
 
-	const search = document.getElementById("optimization-search");
-	if (!(search instanceof HTMLButtonElement)) {
-		throw new Error("missing optimization-search");
-	}
+	const input = `
+	devices/floating-block/1
+	BSJ
+	SWCL
+	RNCS
+	devices/floating-block/2
+	RTY
+	LSCWMW
+	RTYLD
+	The letter distribution is 32.1x more likely to be uniform than Zonai
+	devices/floating-block/3
+	BJ
+	SWCL
+	RNC
+	BJRNC
+	SWCL
+	devices/floating-block/4
+	RTY
+	LSC
+	LDW
+	`;
 
-
-	function optimize() {
-		const solver = new logic.Solver();
-		for (const zonaiLetter of ZonaiLang.alphabet) {
-			const mapsTo = RomajiLang.alphabet.split("").map(romajiLetter => `${zonaiLetter}->${romajiLetter}`);
-			solver.require(logic.exactlyOne(...mapsTo));
+	let state = {
+		froms: ZonaiLang.alphabet.split(""),
+		tos: RomajiLang.alphabet.split(""),
+	};
+	let stateEvaluation = evaluateSubstitution(state);
+	let stale = 0;
+	/**
+	 * @param {boolean} log 
+	 */
+	function work(log) {
+		const swaps = Math.ceil(Math.sqrt(stale / 1e3));
+		const alternate = { froms: withRandomSwaps(state.froms, swaps), tos: state.tos };
+		let alternateEvaluation = evaluateSubstitution(alternate);
+		if (alternateEvaluation > stateEvaluation) {
+			console.log("improvement!", stateEvaluation, "->", alternateEvaluation, "with", alternate);
+			console.log("after", stale, "mutations");
+			stateEvaluation = alternateEvaluation;
+			state = alternate;
+			console.log(applySubstitution(input, state));
+			console.log(" ");
+			stale = 0;
 		}
-		for (const romajiLetter of RomajiLang.alphabet) {
-			const mapsFrom = ZonaiLang.alphabet.split("").map(zonaiLetter => `${zonaiLetter}->${romajiLetter}`);
-			solver.require(logic.exactlyOne(...mapsFrom));
+		stale += 1;
+		if (log) {
+			console.log("work:", { swaps, stale });
 		}
-
-		const lines = input.value.split("\n").map(x => x.trim()).filter(x => x).map(x => "^" + x + "$");
-		const corpus = lines.join("");
-
-		const t0 = performance.now();
-		const penaltyFormulas = [];
-		for (const bad of penalties.value.trim().split(/\s+/g)) {
-			for (let i = 0; i + bad.length <= corpus.length; i++) {
-				const slice = corpus.substring(i, i + bad.length);
-				const cipher = cipherForLangs(slice, bad, ZonaiLang, RomajiLang);
-				if (!cipher) {
-					continue;
-				}
-
-				penaltyFormulas.push(logic.and(...cipher));
-			}
-		}
-
-		const t1 = performance.now();
-		const basicSolution = solver.solve();
-		if (!basicSolution) {
-			throw new Error("unexpectedly has no solution");
-		}
-		const solution = solver.minimizeWeightedSum(basicSolution, penaltyFormulas, penaltyFormulas.map(x => 1));
-		console.log(solution.getTrueVars());
-		/**
-		 * @type {Record<string, string>}
-		 */
-		const mapping = {};
-		for (const value of solution.getTrueVars()) {
-			if (value.includes("->")) {
-				const [k, v] = value.split("->");
-				mapping[k] = v;
-			}
-		}
-		let out = "";
-		for (const c of input.value) {
-			out += mapping[c] || c;
-		}
-
-		const score = solution.getWeightedSum(penaltyFormulas, penaltyFormulas.map(x => 1));
-		output.value = out + "\n\n(penalty: " + score + ")";
-
-
-		const t2 = performance.now();
-
-		console.log("building formula:", t1 - t0);
-		console.log("solving:", t2 - t1);
 	}
 
-	optimize();
-	search.addEventListener("click", optimize);
+	setInterval(() => {
+		if (stale > 1e5) {
+			return;
+		}
+		for (let i = 0; i < 200; i++) {
+			work(false);
+		}
+		work(true);
+	}, 50);
+
 }
 
 /**
@@ -1452,5 +1426,5 @@ function reduceDuplication(corpus) {
 		};
 	}
 
-	sectionOptimization();
+	sectionOptimization(romajiCorpus);
 }

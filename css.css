@@ -7,7 +7,6 @@ body {
 	font-size: 18px;
 	max-width: 12in;
 	color: #11242E;
-
 	min-height: 100vh;
 }
 
@@ -32,7 +31,7 @@ section::after {
 	right: 5px;
 	width: 14px;
 	content: " ";
-	background-image: url('patch.png');
+	background-image: url('motif-vertical.png');
 	opacity: 0.0625;
 }
 
@@ -147,6 +146,34 @@ td.zonai {
 	display: block;
 	font-variant: small-caps;
 	font-size: 10px;
+}
+
+.sample-box.filter-hide {
+	display: none;
+}
+
+.block {
+	position: relative;
+	display: inline-block;
+	width: 1.9em;
+	height: 1.9em;
+}
+
+.bracket-left {
+	position: relative;
+	text-align: left;
+}
+
+.bracket-left::before {
+	position: absolute;
+	top: 5px;
+	left: -10px;
+	bottom: 5px;
+	width: 5px;
+	border-right: 2px solid black;
+	border-top: 2px solid black;
+	border-bottom: 2px solid black;
+	content: " ";
 }
 
 li.inline {
