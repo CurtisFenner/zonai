@@ -255,6 +255,12 @@ S
 W
 Y
 
+# shrines/breakable-pillar
+M
+W
+R
+Y
+
 # shrines/gear
 rings
 read-in-columns
@@ -359,6 +365,10 @@ L
 S
 Y
 U
+
+# equipment/huge-crystalized-charge
+M J N
+C H S
 
 # equipment/master-sword-fused
 H
@@ -484,6 +494,19 @@ LNWUSDUBT
 MJLCWBNMD
 DCHMYDBSC
 YTSNMLJCY
+
+# ring-ruins/floating
+
+BTBBUJDRU
+JRYULURSJ
+UNDHDBTNM
+DLCDHSYBW
+MMUNWLBSY
+SULCLMSUD
+
+// The structure of this one seems to be fairly different?
+// The letter distribution is much less uniform, and the spacing of the letters
+// is extremely unevent.
 
 # devices/shrine-sunlight
 B
@@ -719,6 +742,37 @@ S
 B
 S
 L
+M
+
+# lightning-temple/switch-chamber/1
+S W H
+L C N
+
+# lightning-temple/switch-chamber/2
+S W
+L C
+M D J
+  R B
+    H
+
+# lightning-temple/switch-chamber/3
+  W S J
+  C L B
+J D M H
+B R W S
+H S C L
+C L D M
+
+# lightning-temple/switch-chamber/4
+H W S W S J
+N C L C L B
+        M H
+        W S
+          L
+// These are mostly repetitive, but with small changes in what attaches where.
+
+# lighting-temple/secret-stone-pedestal
+B
 M
 
 # fire-temple/torch-1
@@ -1012,6 +1066,21 @@ C
 D
 M
 
+# constructor-factory/part-holder
+J
+S
+N
+R
+D
+H
+N
+C
+S
+B
+C
+D
+M
+
 # construct-factory/robot-holder
 H
 N
@@ -1073,3 +1142,203 @@ M
 J
 C
 D
+
+# faron/wall
+N J B H N J B H N J B H N J B H N
+? M U S L M U S ? M U S ? M U S L
+  H N W C D N W   D   L   H N W C
+    L   Y R   ?   R   M     L   Y
+    C     W   D             C
+          T
+
+// The letters are much smaller, bolder, and more faded than they
+// usually are, so I cannot make out a lot of them.
+
+# faron/lightning-rod/back
+D
+J
+W
+H
+U
+J
+D
+
+# faron/lightning-rod/front
+B
+H
+W
+N
+C
+J
+D
+
+# dragonhead-island/left-dragon-statue/bottom-jaw
+L
+M
+D
+R
+C
+Y
+W
+B
+Y
+D
+U
+N
+H
+
+// Note that the text orientation flips after the second "Y" as
+// it twists around.
+
+# dragonhead-island/left-dragon-statue/top-jaw
+Y
+N
+H
+U
+R
+L
+S
+C
+U
+N
+J
+M
+H
+U
+S
+L
+Y
+// Note that the text direction flips in the middle
+// between HU and again between LC.
+
+# dragonhead-island/left-dragon-statue/scales
+J 
+M C S D
+ B C C
+ U Y Y
+  L L
+  C C
+  Y
+   N
+   S
+   R
+   C
+   M
+   R
+   S
+   M
+   L
+   D
+   C
+   W
+   N
+   J
+   H
+   M
+   J
+   H
+   R
+   Y
+   T
+   W
+   C
+   W
+   L
+
+# dragonhead-island/right-dragon-statue/top-jaw
+R
+H
+B
+M
+Y
+S
+U
+D
+M
+H
+N
+L
+B
+M
+U
+S
+D
+R
+// flips between BM
+
+# dragonhead-island/right-dragon-statue/bottom-jaw
+S
+L
+C
+Y
+D
+R
+B
+J
+R
+C
+M
+H
+B
+// flips between RC
+
+# dragonhead-island/right-dragon-statue/scales
+      B
+W L D U
+ D D H
+ R R S
+  M L
+  D C
+    Y
+   N
+   S
+   R
+   C
+   M
+   R
+   S
+   M
+   L
+   D
+   C
+   W
+   N
+   J
+   H
+   M
+   J
+   H
+   R
+   Y
+   T
+   W
+   C
+   W
+   M
+
+
+# dragonhead-island/door
+ring
+
+MNTRJH    RJMDTCWHMBUM?    LMUB?HWCTDMJR    HJRTNM
+
+# dragonhead-island/mask-receptacle
+L
+M
+U
+W
+
+# dragonhead-island/mask-elevator
+J M M L J M J
+L J L M L J M
+N L N H S L S
+M S J S M N L
+
+# memories/spirit-sage/mineru-chair
+T  M N D S
+J  U J R L
+B  W B Y M
+S    S T U
+L      H W
+
+// This is very incomplete!
