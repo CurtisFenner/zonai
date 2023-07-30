@@ -127,22 +127,22 @@ H B S N
   H   N
 
 # temple-of-time/door/center-top
-H    N
-N    B
-D    L
-B    M
+H N
+N B
+D L
+B M
 
 # temple-of-time/door/center-bottom
-D   L
-B   M
-H   B
-N   S
+D L
+B M
+H B
+N S
 
 # temple-of-time/door/top-left
-D N N N S D
-N B M L B N
-B N D S N S
-  M S   M
+DNNNSD
+NBMLBN
+BNDSNS
+ MS M
 // the third "N" in the top row is flipped 180 degrees
 
 # temple-of-time/door/top-right
@@ -166,15 +166,15 @@ DLDL
  M
 
 # temple-of-time/chamber/poem-2
-DLD   MLH
-HBS   HND
-SND   NBN
-BDH   BSB
-H N   H D
-N B   D N
-  H   N
-  D   H
-  L   D
+DLD MLH
+HBS HND
+SND NBN
+BDH BSB
+H N H D
+N B D N
+  H N
+  D H
+  L D
   D
 
 # temple-of-time/chamber/poem-3
@@ -216,13 +216,13 @@ B
 S
 
 # sky-islands/launcher
-H B
-N S
-D L
-B H
-S N
-L D
-M B
+HB
+NS
+DL
+BH
+SN
+LD
+MB
 
 # sky-islands/float-spike
 R
@@ -745,30 +745,30 @@ L
 M
 
 # lightning-temple/switch-chamber/1
-S W H
-L C N
+SWH
+LCN
 
 # lightning-temple/switch-chamber/2
-S W
-L C
-M D J
-  R B
-    H
+SW
+LC
+MDJ
+ RB
+  H
 
 # lightning-temple/switch-chamber/3
-  W S J
-  C L B
-J D M H
-B R W S
-H S C L
-C L D M
+ WSJ
+ CLB
+JDMH
+BRWS
+HSCL
+CLDM
 
 # lightning-temple/switch-chamber/4
-H W S W S J
-N C L C L B
-        M H
-        W S
-          L
+HWSWSJ
+NCLCLB
+    MH
+    WS
+     L
 // These are mostly repetitive, but with small changes in what attaches where.
 
 # lighting-temple/secret-stone-pedestal
@@ -902,14 +902,14 @@ N
 S
 
 # prologue/fallen-pillar
-L B H
-N S D
-H M N
-B S B
-N L N
-D S M
-B   H
-    S
+LBH
+NSD
+HMN
+BSB
+NLN
+DSM
+B H
+  S
 
 # prologue/zonai-statue
 T
@@ -953,54 +953,54 @@ U
 N
 
 # forgotten-temple/memory-door
-D L S
-B M S
-H B L
-N S H
+DLS
+BMS
+HBL
+NSH
 // visible in the memory where the sages receive the secret stones
 
 # forgotten-temple/door/bottom-left
 L
-N H D
-S D N
-D L B
-N S N
-D B M
-B L H
-L   S
-H   D
-    N
+NHD
+SDN
+DLB
+NSN
+DBM
+BLH
+L S
+H D
+  N
 
 # forgotten-temple/door/bottom-right
-S L H
-S N S
-L H H
-H B S
-  N L
-  D S
-  B B
-  L M
-  H
+SLH
+SNS
+LHH
+HBS
+ NL
+ DS
+ BB
+ LM
+ H
 
 # forgotten-temple/door/top-right
-D H S B L
-S N N M N
-M L L D M
-H D M N B
-S L N M S
-D B B L L
-    N   S
-    M   D
+DHSBL
+SNNMN
+MLLDM
+HDMNB
+SLNMS
+DBBLL
+  N S
+  M D
 
 # forgotten-temple/door/top-left
-H N H M L
-D S S L S
-N H B H N
-L S N M D
-N N L S N
-B M S B S
-N D   N
-M S   M
+HNHML
+DSSLS
+NHBHN
+LSNMD
+NNLSN
+BMSBS
+ND N
+MS M
 // The "N" is flipped upside down on the 3 column from thel left
 // Like the temple of time, these are only using a
 // small subset of the alphabet...
@@ -1015,13 +1015,6 @@ ring
 // aehikmnorstuwy
 // 50 sounds order:
 // a(eiou?)kstnhmyrw
-
-# mines/target-south/4720/-3786/-0557
-Y
-H
-U
-N
-D
 
 # kakariko-research/analyzed-text
 M N D S
@@ -1144,12 +1137,12 @@ C
 D
 
 # faron/wall
-N J B H N J B H N J B H N J B H N
-? M U S L M U S ? M U S ? M U S L
-  H N W C D N W   D   L   H N W C
-    L   Y R   ?   R   M     L   Y
-    C     W   D             C
-          T
+NJBHNJBHNJBHNJBHN
+?MUSLMUS?MUS?MUSL
+ HNWCDNW D L HNWC
+  L YR ? R M  L Y
+  C  W D      C
+     T
 
 // The letters are much smaller, bolder, and more faded than they
 // usually are, so I cannot make out a lot of them.
@@ -1335,10 +1328,10 @@ N L N H S L S
 M S J S M N L
 
 # memories/spirit-sage/mineru-chair
-T  M N D S
-J  U J R L
-B  W B Y M
-S    S T U
-L      H W
+T MNDS
+J UJRL
+B WBYM
+S  STU
+L   HW
 
 // This is very incomplete!

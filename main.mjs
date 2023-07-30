@@ -249,7 +249,9 @@ function elCipherLetter(letter) {
 function renderZonaiSample(sample, reading) {
 	const asPresented = document.createElement("div");
 	asPresented.className = "table-wrapper";
-	const label = el("div", sample.title, { class: "label" });
+
+	const brokenTitle = sample.title.split("/").map((x, i) => i === 0 ? [x] : [el("br"), x]);
+	const label = el("div", brokenTitle, { class: "label" });
 
 	if (sample.isCircular()) {
 		const ring = createTextRing(sample.grid);
